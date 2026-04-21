@@ -64,8 +64,10 @@ export function RegisterPetugasForm() {
           unit_kerja,
           role,
           is_petugas_registration: true,
+          pending_activation: true,
+          is_active: false,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: undefined,
       },
     });
 
@@ -76,7 +78,9 @@ export function RegisterPetugasForm() {
       return;
     }
 
-    setMessage("Registrasi petugas berhasil.");
+    setMessage(
+      "Registrasi petugas berhasil. Akun menunggu aktivasi super admin.",
+    );
     setShowSuccessToast(true);
 
     setTimeout(() => {
@@ -99,7 +103,7 @@ export function RegisterPetugasForm() {
                 Berhasil mendaftarkan akun
               </p>
               <p className="text-xs text-emerald-700">
-                Akun petugas telah dibuat, mengarahkan ke halaman login.
+                Akun petugas dibuat dan menunggu aktivasi super admin.
               </p>
             </div>
           </div>

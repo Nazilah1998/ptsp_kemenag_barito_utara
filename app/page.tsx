@@ -1,7 +1,15 @@
 import Link from "next/link";
-import { Search, ArrowRight, CircleHelp } from "lucide-react";
+import {
+  Search,
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  Building2,
+  BookOpenCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SiteHomeFaq } from "@/components/site-home-faq";
 import { getPublicServices } from "@/lib/queries";
 
 export default async function HomePage() {
@@ -75,8 +83,8 @@ export default async function HomePage() {
         </form>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
+      <section className="space-y-4 md:space-y-5">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="ptsp-title">Layanan</h2>
             <p className="ptsp-subtitle">
@@ -85,39 +93,97 @@ export default async function HomePage() {
           </div>
           <Link
             href="/layanan"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#1f4bb7]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#d9e4ff] bg-white px-3 py-2 text-sm font-semibold text-[#1f4bb7] hover:bg-[#f4f7ff]"
           >
             Lihat semua <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {services.map((service: any) => (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <Card className="group relative overflow-hidden rounded-2xl border border-[#d4dfff] bg-white p-0 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_30px_rgba(31,75,183,0.18)]">
+            <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#1f4bb7] via-[#2b67f0] to-[#0f8a54]" />
+            <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-[#1f4bb7]/10 blur-xl" />
+            <div className="relative p-4 sm:p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#eaf0ff] px-2.5 py-1 text-[11px] font-semibold text-[#1f4bb7]">
+                  <Sparkles className="h-3 w-3" />
+                  Layanan Unggulan
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                  <ShieldCheck className="h-3 w-3" />
+                  Prioritas
+                </span>
+              </div>
+
+              <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-slate-900 sm:text-lg">
+                Layanan Bidang Bimas Islam
+              </h3>
+
+              <p className="mt-2 min-h-14 text-sm leading-relaxed text-slate-600">
+                Layanan administrasi keagamaan bidang Bimas Islam secara cepat,
+                terarah, dan terdokumentasi.
+              </p>
+
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
+                <Building2 className="h-3.5 w-3.5 text-[#1f4bb7]" />
+                Unit kerja Bimas Islam
+              </div>
+
+              <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                  <BookOpenCheck className="h-3.5 w-3.5 text-[#1f4bb7]" />
+                  Layanan prioritas
+                </span>
+                <Link
+                  href="/layanan"
+                  className="inline-flex min-h-8 items-center gap-1 rounded-full bg-[#1f4bb7] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#183f9a]"
+                >
+                  Detail <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+          </Card>
+
+          {services.map((service: any, idx: number) => (
             <Card
               key={service.id}
-              className="group relative overflow-hidden rounded-2xl border border-[#d9e4ff] bg-white p-0 shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-[#bfd1ff] hover:shadow-[0_14px_30px_rgba(31,75,183,0.16)]"
+              className="group relative overflow-hidden rounded-2xl border border-[#d4dfff] bg-white p-0 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_30px_rgba(31,75,183,0.18)]"
             >
               <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#1f4bb7] via-[#2b67f0] to-[#0f8a54]" />
-              <div className="p-5">
-                <div className="mb-3 inline-flex rounded-full border border-[#d9e4ff] bg-[#f5f8ff] px-2.5 py-1 text-[11px] font-semibold text-[#1f4bb7]">
-                  Layanan Aktif
+              <div className="pointer-events-none absolute -right-6 -top-6 h-14 w-14 rounded-full bg-[#1f4bb7]/10 blur-xl" />
+
+              <div className="relative p-4 sm:p-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f5ff] px-2.5 py-1 text-[11px] font-semibold text-[#1f4bb7]">
+                    <ShieldCheck className="h-3 w-3" />
+                    Layanan Aktif
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+                    #{idx + 1}
+                  </span>
                 </div>
 
-                <h3 className="line-clamp-2 text-lg font-bold leading-snug text-slate-900">
+                <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-slate-900 sm:text-lg">
                   {service.name}
                 </h3>
 
-                <p className="mt-2 line-clamp-3 min-h-15 text-sm leading-relaxed text-slate-600">
+                <p className="mt-2 line-clamp-3 min-h-14 text-sm leading-relaxed text-slate-600">
                   {service.description || "Deskripsi layanan belum tersedia."}
                 </p>
 
+                <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
+                  <Building2 className="h-3.5 w-3.5 text-[#1f4bb7]" />
+                  Kementerian Agama Barito Utara
+                </div>
+
                 <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                  <div className="inline-flex items-center rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                  <div className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                    <BookOpenCheck className="h-3.5 w-3.5 text-[#1f4bb7]" />
                     {service.service_items?.length ?? 0} item layanan
                   </div>
                   <Link
                     href={`/layanan/${service.slug}`}
-                    className="inline-flex items-center gap-1 rounded-full bg-[#1f4bb7] px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-[#183f9a]"
+                    className="inline-flex min-h-8 items-center gap-1 rounded-full bg-[#1f4bb7] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#183f9a]"
                   >
                     Detail <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
@@ -128,21 +194,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="ptsp-title">FAQ Singkat</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          {[
-            "Apa itu PTSP Kemenag?",
-            "Bagaimana cara mendaftar akun baru?",
-            "Apa syarat dokumen yang dikirim?",
-            "Bagaimana cara melacak status layanan?",
-          ].map((item) => (
-            <div key={item} className="ptsp-card flex items-center gap-3 p-4">
-              <CircleHelp className="h-5 w-5 text-[#1f4bb7]" />
-              <p className="text-sm font-medium text-slate-700">{item}</p>
-            </div>
-          ))}
+      <section className="space-y-4 md:space-y-5">
+        <div>
+          <h2 className="ptsp-title">FAQ Singkat</h2>
+          <p className="ptsp-subtitle">
+            Pertanyaan yang sering diajukan untuk membantu proses layanan Anda.
+          </p>
         </div>
+        <SiteHomeFaq />
       </section>
     </div>
   );

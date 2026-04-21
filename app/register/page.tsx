@@ -3,50 +3,31 @@ import { RegisterForm } from "@/components/auth/register-form";
 
 export default function RegisterPage() {
   return (
-    <div className="mx-auto max-w-6xl">
-      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-xl">
-        <div className="grid min-h-140 lg:grid-cols-[0.95fr,1.05fr]">
-          <div className="flex flex-col items-center justify-center bg-[#1f4bb7] p-10 text-center text-white">
-            <div className="max-w-sm space-y-5">
-              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white/15 text-2xl font-black uppercase ring-1 ring-white/30">
-                ptsp
-              </div>
-              <h1 className="text-3xl font-extrabold leading-tight">
-                Buat Akun PTSP Online
-              </h1>
-              <p className="text-sm text-blue-100">
-                Daftarkan akun Anda untuk mengakses seluruh layanan digital PTSP
-                Kementerian Agama.
-              </p>
-              <p className="rounded-xl bg-white/10 p-3 text-sm">
-                Satu akun untuk pengajuan layanan, pemantauan status, dan unduh
-                hasil dokumen.
-              </p>
-            </div>
-          </div>
+    <div className="flex min-h-[calc(100dvh-112px)] items-center justify-center px-3 py-1 sm:px-4">
+      <section className="w-full max-w-130 rounded-xl border border-slate-200 bg-white p-4 shadow-md sm:p-5">
+        <div className="text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1f4bb7]">
+            Sistem PTSP
+          </p>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+            Daftar Akun Pemohon
+          </h1>
+          <p className="mt-1 text-xs text-slate-600 sm:text-sm">
+            Buat akun pemohon untuk mengakses layanan PTSP online.
+          </p>
+        </div>
 
-          <div className="p-8 md:p-10">
-            <div className="mx-auto w-full max-w-xl">
-              <h2 className="text-3xl font-bold text-[#1f2b57]">Registrasi</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                Lengkapi data berikut untuk membuat akun pemohon baru.
-              </p>
+        <div className="mt-4">
+          <RegisterForm />
+        </div>
 
-              <div className="mt-6">
-                <RegisterForm />
-              </div>
-
-              <p className="mt-5 text-sm text-slate-600">
-                Sudah punya akun?{" "}
-                <Link
-                  href="/login"
-                  className="font-semibold text-[#1f4bb7] hover:underline"
-                >
-                  Login di sini
-                </Link>
-              </p>
-            </div>
-          </div>
+        <div className="mt-3 text-center text-xs sm:text-sm">
+          <Link
+            href="/login/pemohon"
+            className="font-medium text-[#1f4bb7] hover:underline"
+          >
+            Kembali ke login pemohon
+          </Link>
         </div>
       </section>
     </div>

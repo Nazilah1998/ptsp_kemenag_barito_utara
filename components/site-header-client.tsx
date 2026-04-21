@@ -48,14 +48,13 @@ export function SiteHeaderClient({
               className="h-10 w-10 object-contain"
             />
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-semibold md:hidden">
-                PTSP BARITO UTARA
+              <p className="truncate text-sm font-extrabold tracking-wide md:hidden">
+                PTSP KEMENAG BARITO UTARA
               </p>
-              <p className="hidden truncate text-sm font-semibold md:block md:max-w-130 md:text-base">
-                Pelayanan Terpadu Satu Pintu (PTSP) Kantor Kementerian Agama
-                Kabupaten Barito Utara
+              <p className="hidden truncate text-sm font-extrabold tracking-wide md:block md:max-w-130 md:text-base">
+                PELAYANAN TERPADU SATU PINTU (PTSP)
               </p>
-              <p className="truncate text-xs text-blue-100">
+              <p className="truncate text-xs font-semibold text-blue-100">
                 Satu Layanan Untuk Semua
               </p>
             </div>

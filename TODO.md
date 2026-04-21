@@ -17,8 +17,12 @@
 - [x] 9. Revamp layout admin (`app/admin/layout.tsx`) agar tampilan panel lebih clean.
 - [x] 10. Revamp sidebar dashboard/admin (`components/dashboard/sidebar.tsx`) dengan navigasi lebih jelas.
 - [ ] 11. Penyeragaman UI halaman admin CRUD utama (tanpa ubah logic server actions).
-- [ ] 12. Uji build/lint untuk validasi.
-- [ ] 13. Finishing pass (rapikan spacing, warna, dan hierarchy visual).
+- [ ] 12. Revamp UI registrasi pemohon (field disederhanakan + modern + icon password).
+- [ ] 13. Update logic registrasi pemohon (tanpa verifikasi, cek duplikasi nomor WA).
+- [ ] 14. Update registrasi petugas (tanpa verifikasi email, menunggu aktivasi super_admin).
+- [ ] 15. Uji build/lint untuk validasi.
+- [ ] 16. Finishing pass (rapikan spacing, warna, dan hierarchy visual).
+- [ ] 17. UI harmonization pass untuk `/track`, `/login`, `/kontak`, `/layanan`, `/register`, `/register/petugas`.
 
 ## Catatan Teknis
 

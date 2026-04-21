@@ -39,13 +39,16 @@ export default async function TrackPage({
   }
 
   return (
-    <div className="space-y-8">
-      <section className="ptsp-card p-6 md:p-8">
-        <div className="mx-auto max-w-3xl space-y-4 text-center">
-          <span className="inline-flex rounded-full bg-[#e8efff] px-3 py-1 text-xs font-semibold text-[#1f4bb7]">
+    <div className="space-y-6 md:space-y-8">
+      <section className="ptsp-card relative overflow-hidden p-5 md:p-7">
+        <div className="pointer-events-none absolute -left-16 -top-16 h-44 w-44 rounded-full bg-[#1f4bb7]/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-16 -top-10 h-40 w-40 rounded-full bg-[#9f8437]/15 blur-3xl" />
+
+        <div className="relative mx-auto max-w-3xl space-y-3 text-center">
+          <span className="inline-flex rounded-full border border-[#cddcff] bg-[#edf3ff] px-3 py-1 text-[11px] font-semibold text-[#1f4bb7]">
             Pelacakan Permohonan
           </span>
-          <h1 className="text-2xl font-bold text-slate-900 md:text-4xl">
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
             Lacak Status Pengajuan Anda
           </h1>
           <p className="text-sm text-slate-600 md:text-base">
@@ -54,17 +57,17 @@ export default async function TrackPage({
           </p>
         </div>
 
-        <form className="mx-auto mt-6 grid max-w-3xl gap-3 md:grid-cols-[1fr,auto]">
+        <form className="relative mx-auto mt-5 grid max-w-3xl gap-2.5 md:mt-6 md:grid-cols-[1fr,auto]">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               name="q"
               defaultValue={q}
               placeholder="Contoh: PTSP-2026-0001"
-              className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm"
+              className="w-full rounded-xl border border-[#ced9f2] bg-white py-2.5 pl-10 pr-4 text-sm shadow-sm transition focus:border-[#1f4bb7]/40"
             />
           </div>
-          <button className="rounded-xl bg-[#1f4bb7] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#183f9a]">
+          <button className="rounded-xl bg-[#1f4bb7] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#183f9a]">
             Lacak Sekarang
           </button>
         </form>
@@ -140,33 +143,31 @@ export default async function TrackPage({
         )
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <div className="ptsp-card p-4">
+      <section className="grid gap-3 md:grid-cols-3">
+        <div className="ptsp-card p-4 md:p-5">
           <FileClock className="h-5 w-5 text-[#1f4bb7]" />
-          <p className="mt-3 text-sm font-semibold text-slate-900">
+          <p className="mt-2.5 text-sm font-bold text-slate-900">
             Status real-time
           </p>
-          <p className="mt-1 text-xs text-slate-600">
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">
             Pantau progres tanpa perlu datang ke kantor.
           </p>
         </div>
-        <div className="ptsp-card p-4">
+        <div className="ptsp-card p-4 md:p-5">
           <ShieldCheck className="h-5 w-5 text-[#9f8437]" />
-          <p className="mt-3 text-sm font-semibold text-slate-900">
-            Transparan
-          </p>
-          <p className="mt-1 text-xs text-slate-600">
+          <p className="mt-2.5 text-sm font-bold text-slate-900">Transparan</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">
             Semua perubahan status tercatat dan dapat ditinjau.
           </p>
         </div>
-        <div className="ptsp-card p-4">
+        <div className="ptsp-card p-4 md:p-5">
           <ArrowRight className="h-5 w-5 text-emerald-600" />
-          <p className="mt-3 text-sm font-semibold text-slate-900">
+          <p className="mt-2.5 text-sm font-bold text-slate-900">
             Butuh bantuan?
           </p>
           <Link
             href="/kontak"
-            className="mt-1 inline-block text-xs font-semibold text-[#1f4bb7]"
+            className="mt-1 inline-block text-xs font-semibold text-[#1f4bb7] hover:underline"
           >
             Hubungi layanan bantuan
           </Link>
