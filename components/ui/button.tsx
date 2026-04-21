@@ -2,18 +2,30 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'default' | 'secondary' | 'danger' | 'outline';
+  variant?: 'default' | 'secondary' | 'danger' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
 };
 
-export function Button({ className, variant = 'default', ...props }: ButtonProps) {
+export function Button({ className, variant = 'default', size = 'md', ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
-        variant === 'default' && 'bg-green-700 text-white hover:bg-green-800',
-        variant === 'secondary' && 'bg-slate-800 text-white hover:bg-slate-900',
-        variant === 'danger' && 'bg-red-700 text-white hover:bg-red-800',
-        variant === 'outline' && 'border border-slate-300 bg-white text-slate-900 hover:bg-slate-50',
+        'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        // Sizes
+        size === 'sm' && 'px-3 py-1.5 text-xs',
+        size === 'md' && 'px-4 py-2.5 text-sm',
+        size === 'lg' && 'px-6 py-3 text-base',
+        // Variants
+        variant === 'default' &&
+          'bg-[#1f4bb7] text-white shadow-sm shadow-blue-500/20 hover:bg-[#183f9a] hover:shadow-md hover:shadow-blue-500/25 focus-visible:ring-[#1f4bb7] active:scale-[0.98]',
+        variant === 'secondary' &&
+          'bg-slate-800 text-white shadow-sm hover:bg-slate-900 focus-visible:ring-slate-800 active:scale-[0.98]',
+        variant === 'danger' &&
+          'bg-red-600 text-white shadow-sm shadow-red-500/20 hover:bg-red-700 hover:shadow-md hover:shadow-red-500/25 focus-visible:ring-red-600 active:scale-[0.98]',
+        variant === 'outline' &&
+          'border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-slate-400 active:scale-[0.98]',
+        variant === 'ghost' &&
+          'text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-slate-400',
         className
       )}
       {...props}

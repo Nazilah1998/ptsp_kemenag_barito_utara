@@ -37,8 +37,8 @@ export default async function DashboardHomePage() {
 
   return (
     <div className="space-y-5 md:space-y-7">
-      <section className="ptsp-hero-gradient ptsp-grid-bg overflow-hidden rounded-2xl p-4 text-white sm:p-6">
-        <div className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr] lg:items-end">
+      <section className="ptsp-hero-gradient ptsp-grid-bg overflow-hidden rounded-2xl p-3 md:p-4 lg:p-5">
+        <div className="mx-auto max-w-3xl grid gap-3 lg:grid-cols-[1.2fr,0.8fr] lg:items-end">
           <div>
             <span className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
               <Sparkles className="h-3.5 w-3.5" />

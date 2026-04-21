@@ -6,15 +6,51 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        'inline-flex rounded-full px-3 py-1 text-xs font-semibold',
-        tone === 'success' && 'bg-green-100 text-green-800',
-        tone === 'danger' && 'bg-red-100 text-red-800',
-        tone === 'warning' && 'bg-amber-100 text-amber-800',
-        tone === 'info' && 'bg-blue-100 text-blue-800',
-        tone === 'muted' && 'bg-slate-100 text-slate-700'
+        'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold tracking-wide',
+        tone === 'success' && 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60',
+        tone === 'danger' && 'bg-red-50 text-red-700 ring-1 ring-red-200/60',
+        tone === 'warning' && 'bg-amber-50 text-amber-700 ring-1 ring-amber-200/60',
+        tone === 'info' && 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/60',
+        tone === 'muted' && 'bg-slate-100 text-slate-600 ring-1 ring-slate-200/60'
       )}
     >
+      <span
+        className={cn(
+          'h-1.5 w-1.5 rounded-full',
+          tone === 'success' && 'bg-emerald-500',
+          tone === 'danger' && 'bg-red-500',
+          tone === 'warning' && 'bg-amber-500',
+          tone === 'info' && 'bg-blue-500',
+          tone === 'muted' && 'bg-slate-400'
+        )}
+      />
       {REQUEST_STATUS_LABELS[status] ?? status}
+    </span>
+  );
+}
+
+export function Badge({
+  children,
+  variant = 'default',
+  className,
+}: {
+  children: React.ReactNode;
+  variant?: 'default' | 'success' | 'danger' | 'warning' | 'info';
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold',
+        variant === 'default' && 'bg-slate-100 text-slate-700 ring-1 ring-slate-200/60',
+        variant === 'success' && 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60',
+        variant === 'danger' && 'bg-red-50 text-red-700 ring-1 ring-red-200/60',
+        variant === 'warning' && 'bg-amber-50 text-amber-700 ring-1 ring-amber-200/60',
+        variant === 'info' && 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/60',
+        className
+      )}
+    >
+      {children}
     </span>
   );
 }

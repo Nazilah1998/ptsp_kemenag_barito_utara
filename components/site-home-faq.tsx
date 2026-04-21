@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, CircleHelp } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 
 const FAQ_ITEMS = [
   {
@@ -33,40 +33,46 @@ export function SiteHomeFaq() {
         return (
           <div
             key={item.q}
-            className="overflow-hidden rounded-2xl border border-[#d9e4ff] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.06)]"
+            className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+              isOpen
+                ? "border-[#1f4bb7]/30 bg-white shadow-[0_8px_24px_rgba(31,75,183,0.1)]"
+                : "border-slate-200 bg-white shadow-sm hover:border-[#1f4bb7]/20 hover:shadow-md"
+            }`}
           >
             <button
               type="button"
-              className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-5 sm:py-4"
+              className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
               onClick={() => setOpenIndex(isOpen ? null : index)}
               aria-expanded={isOpen}
             >
-              <span className="flex items-center gap-2.5">
-                <span className="rounded-full bg-[#eaf0ff] p-1.5">
-                  <CircleHelp className="h-4 w-4 text-[#1f4bb7]" />
+              <span className="flex items-center gap-3">
+                <span
+                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
+                    isOpen ? "bg-[#1f4bb7] text-white" : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  <HelpCircle className="h-4 w-4" />
                 </span>
                 <span className="text-sm font-semibold text-slate-800 sm:text-[15px]">
                   {item.q}
                 </span>
               </span>
               <ChevronDown
-                className={`h-4 w-4 shrink-0 text-[#1f4bb7] transition-transform duration-300 ${
-                  isOpen ? "rotate-180" : ""
+                className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+                  isOpen ? "rotate-180 text-[#1f4bb7]" : "text-slate-400"
                 }`}
               />
             </button>
 
             <div
               className={`grid transition-all duration-300 ease-out ${
-                isOpen
-                  ? "grid-rows-[1fr] opacity-100"
-                  : "grid-rows-[0fr] opacity-0"
+                isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}
             >
               <div className="overflow-hidden">
-                <p className="border-t border-slate-100 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-600 sm:px-5">
-                  {item.a}
-                </p>
+                <div className="border-t border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50/30 px-5 py-4">
+                  <p className="text-sm leading-relaxed text-slate-600">{item.a}</p>
+                </div>
               </div>
             </div>
           </div>

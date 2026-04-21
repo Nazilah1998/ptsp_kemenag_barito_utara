@@ -1,8 +1,10 @@
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+
+
 import { Field } from '@/components/ui/field';
+import { PageHeader } from '@/components/admin/page-header';
+import { FormInput, Plus, Pencil, Trash2, Inbox, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import {
@@ -21,12 +23,23 @@ export default async function AdminFormFieldsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Kelola Form Layanan</h1>
-        <p className="mt-2 text-slate-600">Field form diambil dari database dan dipakai untuk form dinamis.</p>
-      </div>
+      <PageHeader
+        title="Kelola Form Layanan"
+        description="Atur field form dinamis yang digunakan oleh tiap item layanan."
+        icon={FormInput}
+      />
 
-      <Card title="Tambah Field">
+      <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+        <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50">
+            <Plus className="h-4 w-4 text-[#1f4bb7]" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-slate-800">Tambah Field Baru</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Isi form di bawah untuk menambah field baru</p>
+          </div>
+        </div>
+        <div className="p-5">
         <form action={createFieldAction} className="grid gap-4 md:grid-cols-2">
           <Field label="Item Layanan">
             <Select name="service_item_id" required>

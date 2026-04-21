@@ -27,7 +27,7 @@ export default async function ServiceDetailPage({
   return (
     <div className="space-y-6 md:space-y-8">
       <section className="ptsp-card overflow-hidden">
-        <div className="h-1.5 w-full bg-gradient-to-r from-[#1f4bb7] via-[#2d7fff] to-[#00a2b8]" />
+        <div className="h-1.5 w-full bg-linear-to-r from-[#1f4bb7] via-[#2d7fff] to-[#00a2b8]" />
         <div className="p-5 sm:p-6 md:p-8">
           <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
             <Link href="/" className="hover:text-[#1f4bb7]">

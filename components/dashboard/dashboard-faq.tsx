@@ -27,7 +27,7 @@ export function DashboardFaq() {
 
   return (
     <section className="ptsp-card overflow-hidden">
-      <div className="h-1 w-full bg-gradient-to-r from-[#1f4bb7] via-[#2d7fff] to-[#00a2b8]" />
+      <div className="h-1 w-full bg-linear-to-r from-[#1f4bb7] via-[#2d7fff] to-[#00a2b8]" />
       <div className="p-4 sm:p-5">
         <div className="mb-4 flex items-center gap-2">
           <HelpCircle className="h-5 w-5 text-[#1f4bb7]" />

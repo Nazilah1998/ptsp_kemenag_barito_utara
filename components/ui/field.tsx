@@ -12,13 +12,15 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="block space-y-2">
-      <span className="block text-sm font-medium text-slate-800">
+    <label className="block space-y-1.5">
+      <span className="block text-sm font-medium text-slate-700">
         {label}
-        {required ? <span className="ml-1 text-red-600">*</span> : null}
+        {required ? <span className="ml-0.5 text-red-500">*</span> : null}
       </span>
       {children}
-      {hint ? <span className="block text-xs text-slate-500">{hint}</span> : null}
+      {hint ? (
+        <span className="block text-xs text-slate-400 leading-relaxed">{hint}</span>
+      ) : null}
     </label>
   );
 }

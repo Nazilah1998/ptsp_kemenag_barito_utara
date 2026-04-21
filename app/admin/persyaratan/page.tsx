@@ -26,9 +26,9 @@ export default async function AdminRequirementsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Kelola Persyaratan</h1>
-        <p className="mt-2 text-slate-600">Atur dokumen persyaratan untuk tiap item layanan.</p>
+      <div className="rounded-2xl bg-gradient-to-r from-[#0f2563] to-[#1f4bb7] px-5 py-4 shadow-md shadow-blue-900/20">
+        <h1 className="text-3xl font-bold text-white">Kelola Persyaratan</h1>
+        <p className="mt-2 text-blue-100/80">Atur dokumen persyaratan untuk tiap item layanan.</p>
       </div>
 
       <Card title="Tambah Persyaratan">

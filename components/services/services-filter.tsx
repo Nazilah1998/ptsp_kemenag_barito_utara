@@ -117,7 +117,7 @@ export function ServicesFilter({ services }: { services: Service[] }) {
               key={service.id}
               className="ptsp-card group flex h-full flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
             >
-              <div className="h-1 w-full bg-gradient-to-r from-[#1f4bb7] via-[#2d7fff] to-[#00a2b8]" />
+              <div className="h-1 w-full bg-linear-to-r from-[#1f4bb7] via-[#2d7fff] to-[#00a2b8]" />
               <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1 rounded-full bg-[#e8efff] px-2.5 py-1 text-[11px] font-semibold text-[#1f4bb7]">
