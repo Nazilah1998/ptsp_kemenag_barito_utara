@@ -36,13 +36,43 @@ interface NavItem {
 
 const ADMIN_NAV: NavItem[] = [
   { label: "Ringkasan", href: "/admin", icon: LayoutDashboard, group: "Utama" },
-  { label: "Pengajuan", href: "/admin/pengajuan", icon: FolderKanban, group: "Utama" },
-  { label: "Layanan", href: "/admin/layanan", icon: FileText, group: "Master Data" },
-  { label: "Item Layanan", href: "/admin/item-layanan", icon: Files, group: "Master Data" },
-  { label: "Form Layanan", href: "/admin/form-layanan", icon: FormInput, group: "Master Data" },
-  { label: "Persyaratan", href: "/admin/persyaratan", icon: ListChecks, group: "Master Data" },
+  {
+    label: "Pengajuan",
+    href: "/admin/pengajuan",
+    icon: FolderKanban,
+    group: "Utama",
+  },
+  {
+    label: "Layanan",
+    href: "/admin/layanan",
+    icon: FileText,
+    group: "Master Data",
+  },
+  {
+    label: "Item Layanan",
+    href: "/admin/item-layanan",
+    icon: Files,
+    group: "Master Data",
+  },
+  {
+    label: "Form Layanan",
+    href: "/admin/form-layanan",
+    icon: FormInput,
+    group: "Master Data",
+  },
+  {
+    label: "Persyaratan",
+    href: "/admin/persyaratan",
+    icon: ListChecks,
+    group: "Master Data",
+  },
   { label: "Pengguna", href: "/admin/pengguna", icon: Users, group: "Sistem" },
-  { label: "Dokumen Hasil", href: "/admin/dokumen-hasil", icon: FileOutput, group: "Sistem" },
+  {
+    label: "Dokumen Hasil",
+    href: "/admin/dokumen-hasil",
+    icon: FileOutput,
+    group: "Sistem",
+  },
 ];
 
 const GROUP_ICONS: Record<string, React.ElementType> = {
@@ -51,7 +81,15 @@ const GROUP_ICONS: Record<string, React.ElementType> = {
   Sistem: Settings2,
 };
 
-function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
+function NavLink({
+  item,
+  isActive,
+  onClick,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  onClick?: () => void;
+}) {
   const Icon = item.icon;
   return (
     <Link
@@ -77,9 +115,7 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
         />
       </span>
       <span className="flex-1 leading-tight truncate">{item.label}</span>
-      {isActive && (
-        <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />
-      )}
+      {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />}
     </Link>
   );
 }
@@ -106,7 +142,7 @@ export function AdminShell({
 
   const initials = (profile?.full_name || profile?.email || "A")
     .split(" ")
-    .map((w) => w[0])
+    .map((w: any[]) => w[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
@@ -119,8 +155,12 @@ export function AdminShell({
           <Shield className="h-4 w-4 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-white leading-tight truncate">Panel Admin</p>
-          <p className="text-[10px] text-blue-200/60 truncate">PTSP Kemenag Barito Utara</p>
+          <p className="text-sm font-bold text-white leading-tight truncate">
+            Panel Admin
+          </p>
+          <p className="text-[10px] text-blue-200/60 truncate">
+            PTSP Kemenag Barito Utara
+          </p>
         </div>
       </div>
 
@@ -128,12 +168,16 @@ export function AdminShell({
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {groups.map((group, gi) => {
           const GroupIcon = GROUP_ICONS[group];
-          const groupItems = ADMIN_NAV.filter((item) => (item.group || "") === group);
+          const groupItems = ADMIN_NAV.filter(
+            (item) => (item.group || "") === group,
+          );
           return (
             <div key={group} className={gi > 0 ? "pt-2" : ""}>
               {group && (
                 <div className="mb-1.5 mt-2 first:mt-0 flex items-center gap-1.5 px-3">
-                  {GroupIcon && <GroupIcon className="h-3 w-3 text-slate-500" />}
+                  {GroupIcon && (
+                    <GroupIcon className="h-3 w-3 text-slate-500" />
+                  )}
                   <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
                     {group}
                   </p>
@@ -238,13 +282,19 @@ export function AdminShell({
             onClick={() => setMobileOpen((v) => !v)}
             className="flex lg:hidden h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-colors"
           >
-            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {mobileOpen ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Menu className="h-4 w-4" />
+            )}
           </button>
 
           {/* Brand mark — mobile only */}
           <div className="flex lg:hidden items-center gap-2 min-w-0">
             <Shield className="h-4 w-4 text-[#1f4bb7] shrink-0" />
-            <p className="text-sm font-bold text-slate-800 truncate">Panel Admin PTSP</p>
+            <p className="text-sm font-bold text-slate-800 truncate">
+              Panel Admin PTSP
+            </p>
           </div>
 
           {/* Desktop: subtle breadcrumb label */}
@@ -275,9 +325,7 @@ export function AdminShell({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
   );
