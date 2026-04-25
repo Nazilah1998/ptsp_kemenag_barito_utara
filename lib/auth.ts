@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSuperAdmin, isAdminRole } from "@/lib/constants";
 
 export async function getCurrentUser() {
   const supabase = await createClient();
@@ -35,7 +36,8 @@ export async function requireAuth() {
 
 export async function requireAdmin() {
   const profile = await requireAuth();
-  if (profile.role !== "admin" && profile.role !== "super_admin") {
+  // Super admin ditentukan oleh email (hardcoded), bukan role di database
+  if (!isAdminRole(profile.role) && !isSuperAdmin(profile.email)) {
     redirect("/dashboard");
   }
   return profile;

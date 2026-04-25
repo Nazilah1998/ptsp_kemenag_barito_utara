@@ -61,8 +61,7 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -right-40 bottom-0 h-[500px] w-[500px] rounded-full bg-[#2b67f0]/20 blur-[100px]" />
         <div className="pointer-events-none absolute left-1/3 top-0 h-[300px] w-[300px] rounded-full bg-[#9f8437]/10 blur-[80px]" />
 
-        {/* Content */}
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
+        <div className="relative z-10 mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24 py-24 lg:py-32">
           <div className="grid items-center gap-12 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_460px]">
             {/* Left */}
             <div className="space-y-8">
@@ -277,8 +276,8 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════
           QUICK ACCESS CARDS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="bg-[#f8fafc] py-14 md:py-16">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+      <section className="bg-[#f8fafc] py-14 md:py-20">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
           {/* Section label */}
           <div className="mb-10 text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-[#1f4bb7]/60 mb-2">
@@ -369,9 +368,9 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════
           TRACK SECTION
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-16">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d2d8a] via-[#1f4bb7] to-[#1a53c8] p-8 shadow-2xl shadow-blue-900/20 md:p-12">
+      <section className="py-14 md:py-20">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#0d2d8a] via-[#1f4bb7] to-[#1a53c8] p-10 shadow-2xl shadow-blue-900/20 md:p-16 lg:p-20">
             {/* Grid pattern */}
             <div
               className="absolute inset-0 opacity-[0.08]"
@@ -489,7 +488,7 @@ export default async function HomePage() {
           SERVICES SECTION
       ═══════════════════════════════════════════════════════════ */}
       <section className="bg-[#f8fafc] py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
           {/* Header */}
           <div className="mb-12 flex items-end justify-between gap-6">
             <div>
@@ -517,52 +516,6 @@ export default async function HomePage() {
 
           {/* Cards */}
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {/* Featured/Static card */}
-            <div className="group relative overflow-hidden rounded-3xl border border-[#1f4bb7]/15 bg-white shadow-[0_8px_30px_rgba(31,75,183,0.08)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(31,75,183,0.18)]">
-              {/* Top gradient bar */}
-              <div className="h-1.5 w-full bg-gradient-to-r from-[#1f4bb7] via-[#2b67f0] to-[#0f8a54]" />
-              <div className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-gradient-to-br from-[#1f4bb7]/8 to-transparent" />
-
-              <div className="p-6">
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#1f4bb7] to-[#2b67f0] px-3 py-1 text-[11px] font-black text-white">
-                    <Sparkles className="h-3 w-3" />
-                    Unggulan
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-700">
-                    <Star className="h-3 w-3" />
-                    Prioritas
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-black leading-snug text-slate-900">
-                  Layanan Bidang Bimas Islam
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-slate-500">
-                  Layanan administrasi keagamaan bidang Bimas Islam secara
-                  cepat, terarah, dan terdokumentasi dengan baik.
-                </p>
-
-                <div className="mt-3.5 flex items-center gap-2 text-xs text-slate-400">
-                  <Building2 className="h-3.5 w-3.5 text-[#1f4bb7]" />
-                  <span>Unit Kerja Bimas Islam</span>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
-                    <BookOpenCheck className="h-3.5 w-3.5 text-[#1f4bb7]" />
-                    Layanan prioritas
-                  </span>
-                  <Link
-                    href="/layanan"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#1f4bb7] to-[#2b67f0] px-4 py-2 text-xs font-bold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-                  >
-                    Lihat Detail <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-
             {/* Dynamic services */}
             {services.map((service: any, idx: number) => (
               <div
@@ -627,9 +580,9 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════
           HOW IT WORKS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <div className="mb-12 text-center">
+      <section className="py-14 md:py-24">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
+          <div className="mb-16 text-center">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#1f4bb7]/10 px-4 py-1.5">
               <Zap className="h-3.5 w-3.5 text-[#1f4bb7]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#1f4bb7]">
@@ -738,9 +691,9 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════
           STATS SECTION
       ═══════════════════════════════════════════════════════════ */}
-      <section className="bg-gradient-to-br from-[#0a1e5e] to-[#1f4bb7] py-14 md:py-16">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
+      <section className="bg-gradient-to-br from-[#0a1e5e] to-[#1f4bb7] py-16 md:py-24">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
             {[
               {
                 value: "10+",
@@ -789,9 +742,9 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════
           FAQ SECTION
       ═══════════════════════════════════════════════════════════ */}
-      <section className="bg-[#f8fafc] py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <div className="mb-12 text-center">
+      <section className="bg-[#f8fafc] py-16 md:py-24">
+        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
+          <div className="mb-16 text-center">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#1f4bb7]/10 px-4 py-1.5">
               <BookOpenCheck className="h-3.5 w-3.5 text-[#1f4bb7]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#1f4bb7]">
@@ -808,60 +761,6 @@ export default async function HomePage() {
           </div>
           <div className="mx-auto max-w-4xl">
             <SiteHomeFaq />
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          CTA BANNER
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-16">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f8a54] via-[#0b7446] to-[#096038] p-10 text-white shadow-2xl shadow-green-900/30 md:p-14">
-            {/* Grid overlay */}
-            <div
-              className="absolute inset-0 opacity-[0.06]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
-                backgroundSize: "40px 40px",
-              }}
-            />
-            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-[#1f4bb7]/20 blur-3xl" />
-
-            <div className="relative z-10 flex flex-col items-center gap-8 text-center md:flex-row md:items-start md:text-left">
-              <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-3xl bg-white/15 backdrop-blur-sm">
-                <Sparkles className="h-10 w-10 text-[#f0c040]" />
-              </div>
-
-              <div className="flex-1">
-                <h2 className="text-2xl font-black text-white md:text-3xl lg:text-4xl">
-                  Siap Mengajukan Layanan?
-                </h2>
-                <p className="mt-3 max-w-xl text-sm text-white/70 md:text-base leading-relaxed">
-                  Daftar sekarang dan nikmati kemudahan layanan Kementerian
-                  Agama Kabupaten Barito Utara — online, cepat, dan transparan.
-                </p>
-              </div>
-
-              <div className="flex flex-shrink-0 flex-wrap justify-center gap-3 md:flex-col">
-                <Link
-                  href="/register"
-                  className="inline-flex items-center gap-2.5 rounded-2xl bg-white px-7 py-3.5 text-sm font-black text-[#0f8a54] shadow-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2xl"
-                >
-                  <Users className="h-4 w-4" />
-                  Daftar Sekarang
-                </Link>
-                <Link
-                  href="/layanan"
-                  className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-white/30 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                  Lihat Layanan
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </section>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
-import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { useMemo, useState, useEffect, type FormEvent } from "react";
+import { Eye, EyeOff, ShieldCheck, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { isAdminRole } from "@/lib/constants";
 
 type LoginRoleMode = "pemohon" | "petugas";
 
@@ -26,13 +27,15 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [captchaA, setCaptchaA] = useState(
-    () => Math.floor(Math.random() * 9) + 1,
-  );
-  const [captchaB, setCaptchaB] = useState(
-    () => Math.floor(Math.random() * 9) + 1,
-  );
+  const [mounted, setMounted] = useState(false);
+  const [captchaA, setCaptchaA] = useState(1);
+  const [captchaB, setCaptchaB] = useState(1);
 
+  useEffect(() => {
+    setMounted(true);
+    setCaptchaA(Math.floor(Math.random() * 9) + 1);
+    setCaptchaB(Math.floor(Math.random() * 9) + 1);
+  }, []);
   const captchaQuestion = useMemo(
     () => `${captchaA} + ${captchaB}`,
     [captchaA, captchaB],
@@ -139,7 +142,7 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, is_verified")
       .eq("id", userRes.user.id)
       .maybeSingle();
 
@@ -150,14 +153,16 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
     }
 
     const role = String(profile?.role || "user");
-    const isAdmin = role === "admin" || role === "super_admin";
-    const isPetugasRole =
-      role === "admin" ||
-      role === "super_admin" ||
-      role === "admin_tu" ||
-      role === "kasubag_tu" ||
-      role === "kepala_kantor" ||
-      role === "admin_penomoran_surat";
+    const isAdmin = isAdminRole(role);
+    const isPetugasRole = isAdminRole(role);
+
+    // Cek verifikasi: petugas yang belum diverifikasi Super Admin tidak bisa login
+    if (mode === "petugas" && isPetugasRole && profile?.is_verified === false) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setError("Akun Anda sedang menunggu verifikasi dari Super Admin. Silakan hubungi admin untuk aktivasi.");
+      return;
+    }
 
     if (mode === "petugas" && !isPetugasRole) {
       await supabase.auth.signOut();
@@ -224,20 +229,35 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
 
       {mode === "petugas" ? (
         <Field
-          label="Captcha Sederhana"
+          label="Keamanan (Captcha)"
           required
-          hint="Isi hasil perhitungan untuk verifikasi keamanan"
+          hint="Isi hasil perhitungan di atas untuk verifikasi"
         >
-          <div className="grid gap-2 sm:grid-cols-[1fr,120px]">
-            <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-900">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Berapa hasil {captchaQuestion} ?</span>
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-2 shadow-sm">
+              <div className="flex items-center gap-3 pl-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 shadow-sm">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <span className="text-[14px] font-bold text-slate-700 tracking-wide">
+                  Berapa hasil {mounted ? captchaQuestion : "..."} ?
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={regenerateCaptcha}
+                className="group flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm active:scale-95"
+                title="Ganti soal captcha"
+              >
+                <RefreshCw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
+              </button>
             </div>
             <Input
               name="captcha_answer"
               type="number"
               required
-              placeholder="Jawaban"
+              placeholder="Ketik angka jawaban di sini..."
+              className="font-bold text-slate-700 h-11"
             />
           </div>
         </Field>
@@ -250,7 +270,7 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
       ) : null}
 
       <Button
-        className="w-full bg-[#007a3d]! hover:bg-[#016834]!"
+        className={`w-full h-11 text-[15px] font-bold shadow-md transition-all ${mode === "petugas" ? "bg-[#0f8a54]! hover:bg-[#0b7446]! hover:shadow-emerald-500/25" : "bg-[#1f4bb7]! hover:bg-[#1a3fa3]! hover:shadow-blue-500/25"}`}
         disabled={loading}
       >
         {loading

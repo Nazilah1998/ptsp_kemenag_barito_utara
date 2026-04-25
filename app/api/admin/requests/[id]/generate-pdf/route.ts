@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { buildRequestPdf } from '@/lib/pdf';
+import { isAdminRole } from '@/lib/constants';
 
 export async function POST(
   request: Request,
@@ -22,7 +23,7 @@ export async function POST(
   const admin = createAdminClient();
   const { data: profile } = await admin.from('profiles').select('*').eq('id', user.id).maybeSingle();
 
-  if (!profile || profile.role !== 'admin') {
+  if (!profile || !isAdminRole(profile.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

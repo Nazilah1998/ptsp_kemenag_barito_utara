@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export function Card({
   title,
   description,
   icon: Icon,
   className,
-  children
+  children,
 }: {
   title?: string;
   description?: string;
@@ -17,26 +17,26 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md overflow-hidden',
-        className
+        "rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300 overflow-hidden",
+        className,
       )}
     >
       {(title || description) && (
-        <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white px-6 py-4">
-          <div className="flex items-start gap-3">
+        <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-6 py-5">
+          <div className="flex items-center gap-4">
             {Icon && (
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1f4bb7]/10 to-[#1f4bb7]/5 text-[#1f4bb7]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#1f4bb7] border border-blue-100/50 shadow-sm">
                 <Icon className="h-5 w-5" />
               </div>
             )}
             <div className="min-w-0">
               {title && (
-                <h3 className="text-base font-semibold text-slate-900 leading-tight">
+                <h3 className="text-base font-bold text-slate-800 leading-tight">
                   {title}
                 </h3>
               )}
               {description && (
-                <p className="mt-0.5 text-sm text-slate-500 leading-relaxed">
+                <p className="mt-1 text-sm text-slate-500 leading-relaxed font-medium">
                   {description}
                 </p>
               )}

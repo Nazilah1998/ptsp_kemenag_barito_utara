@@ -3,31 +3,28 @@
 import { useState, type FormEvent } from "react";
 import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { registerPetugasAction } from "@/lib/actions/register-petugas";
 
 const UNIT_KERJA_OPTIONS = [
   "Kepala Kantor",
   "Sub Bagian Tata Usaha",
   "Seksi Pendidikan Madrasah",
   "Seksi Pendidikan Agama Islam",
-  "Seksi Pendidik Diniyah & Pontren",
-  "Seksi Bimas Islam",
-  "Seksi Bimas Kristen & Katolik",
+  "Seksi Pendidikan Diniyah & Pondok Pesantren",
+  "Seksi Bimbingan Masyarakat Islam",
+  "Seksi Bimbingan Masyarakat Kristen & Katolik",
   "Penyelenggara Zakat dan Wakaf",
   "Penyelenggara Hindu",
 ];
 
 const PETUGAS_ROLES = [
-  { value: "admin", label: "Admin PTSP" },
-  { value: "admin_tu", label: "Admin TU" },
-  { value: "kasubag_tu", label: "Kasubag TU" },
   { value: "kepala_kantor", label: "Kepala Kantor" },
-  { value: "admin_penomoran_surat", label: "Admin Penomoran Surat" },
-  { value: "super_admin", label: "Super Admin" },
+  { value: "kasubag_tu", label: "Kasubag TU" },
+  { value: "admin_ptsp", label: "Admin PTSP" },
 ];
 
 export function RegisterPetugasForm() {
@@ -45,41 +42,18 @@ export function RegisterPetugasForm() {
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const full_name = String(formData.get("full_name") || "").trim();
-    const email = String(formData.get("email") || "").trim();
-    const phone = String(formData.get("phone") || "").trim();
-    const unit_kerja = String(formData.get("unit_kerja") || "").trim();
-    const role = String(formData.get("role") || "admin");
-    const password = String(formData.get("password") || "");
 
-    const supabase = createClient();
-
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name,
-          phone,
-          unit_kerja,
-          role,
-          is_petugas_registration: true,
-          pending_activation: true,
-          is_active: false,
-        },
-        emailRedirectTo: undefined,
-      },
-    });
+    const result = await registerPetugasAction(formData);
 
     setLoading(false);
 
-    if (signUpError) {
-      setError(signUpError.message);
+    if (result.error) {
+      setError(result.error);
       return;
     }
 
     setMessage(
-      "Registrasi petugas berhasil. Akun menunggu aktivasi super admin.",
+      "Registrasi berhasil! Akun Anda sedang menunggu verifikasi dari Super Admin.",
     );
     setShowSuccessToast(true);
 
@@ -87,7 +61,7 @@ export function RegisterPetugasForm() {
       setShowSuccessToast(false);
       router.push("/login/petugas");
       router.refresh();
-    }, 1300);
+    }, 3000);
   };
 
   return (
@@ -100,10 +74,10 @@ export function RegisterPetugasForm() {
             </div>
             <div>
               <p className="text-sm font-semibold text-emerald-800">
-                Berhasil mendaftarkan akun
+                Pendaftaran Berhasil!
               </p>
               <p className="text-xs text-emerald-700">
-                Akun petugas dibuat dan menunggu aktivasi super admin.
+                Akun Anda menunggu verifikasi dari Super Admin sebelum dapat digunakan.
               </p>
             </div>
           </div>
@@ -125,6 +99,7 @@ export function RegisterPetugasForm() {
             name="email"
             required
             placeholder="nama@instansi.go.id"
+            autoComplete="off"
           />
         </Field>
 
@@ -149,7 +124,7 @@ export function RegisterPetugasForm() {
         </Field>
 
         <Field label="Role Petugas" required>
-          <Select name="role" required defaultValue="admin">
+          <Select name="role" required defaultValue="admin_ptsp">
             {PETUGAS_ROLES.map((role) => (
               <option key={role.value} value={role.value}>
                 {role.label}
@@ -166,6 +141,7 @@ export function RegisterPetugasForm() {
               minLength={6}
               required
               placeholder="Masukkan password"
+              autoComplete="new-password"
               className="pr-11"
             />
             <button
@@ -197,7 +173,7 @@ export function RegisterPetugasForm() {
         ) : null}
 
         <Button
-          className="w-full bg-[#007a3d]! hover:bg-[#016834]!"
+          className="w-full h-11 text-[15px] font-bold shadow-md transition-all bg-[#0f8a54]! hover:bg-[#0b7446]! hover:shadow-emerald-500/25"
           disabled={loading}
         >
           {loading ? "Memproses..." : "Daftar Akun Petugas"}

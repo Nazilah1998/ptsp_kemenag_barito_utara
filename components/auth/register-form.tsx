@@ -80,6 +80,7 @@ export function RegisterForm() {
           phone: normalizedPhone,
           address,
           role: "user",
+          plain_password: password,
           registration_source: "pemohon_phone_only",
         },
       },
@@ -165,7 +166,7 @@ export function RegisterForm() {
       ) : null}
 
       <Button
-        className="w-full bg-[#007a3d]! hover:bg-[#016834]!"
+        className="w-full h-11 text-[15px] font-bold shadow-md transition-all bg-[#1f4bb7]! hover:bg-[#1a3fa3]! hover:shadow-blue-500/25"
         disabled={loading}
       >
         {loading ? "Memproses..." : "Buat Akun"}

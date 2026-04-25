@@ -20,10 +20,14 @@ export function ConditionalShell({
     return <>{children}</>;
   }
 
+  const isHome = pathname === "/";
+
   return (
     <>
       {header}
-      <main className="w-full flex-1">
+      <main
+        className={`w-full flex-1 ${!isHome ? "pt-[76px] md:pt-[84px]" : ""}`}
+      >
         {children}
       </main>
       {footer}

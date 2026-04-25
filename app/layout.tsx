@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Heart,
 } from "lucide-react";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -62,13 +63,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <div className="pointer-events-none absolute -left-40 top-0 h-96 w-96 rounded-full bg-[#1f4bb7]/10 blur-[120px]" />
       <div className="pointer-events-none absolute -right-40 bottom-0 h-80 w-80 rounded-full bg-[#0f8a54]/10 blur-[100px]" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+      <div className="relative z-10 mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
         {/* Main grid */}
         <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
-
           {/* Brand — span 4 */}
           <div className="lg:col-span-4">
-            <Link href="/" className="group inline-flex items-center gap-3 mb-5">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-3 mb-5"
+            >
               <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15 transition-all duration-200 group-hover:bg-white/20">
                 <Image
                   src="/kemenag.svg"
@@ -79,21 +82,27 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 />
               </div>
               <div>
-                <p className="text-base font-black tracking-widest text-white">PTSP KEMENAG</p>
-                <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">Barito Utara</p>
+                <p className="text-base font-black tracking-widest text-white">
+                  PTSP KEMENAG
+                </p>
+                <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">
+                  Barito Utara
+                </p>
               </div>
             </Link>
 
             <p className="text-sm leading-relaxed text-white/45 max-w-xs">
-              Portal resmi Pelayanan Terpadu Satu Pintu Kementerian Agama Kabupaten Barito Utara.
-              Layanan cepat, mudah, dan transparan.
+              Portal resmi Pelayanan Terpadu Satu Pintu Kementerian Agama
+              Kabupaten Barito Utara. Layanan cepat, mudah, dan transparan.
             </p>
 
             {/* Jam operasional */}
             <div className="mt-6 inline-flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
               <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#5eeaa5]" />
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-0.5">Jam Operasional</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-0.5">
+                  Jam Operasional
+                </p>
                 <p className="text-sm font-bold text-white">Senin – Jumat</p>
                 <p className="text-sm text-white/60">08.00 – 16.00 WIB</p>
               </div>
@@ -179,7 +188,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     <MapPin className="h-3.5 w-3.5 text-[#5eeaa5]" />
                   </div>
                   <span className="leading-relaxed">
-                    Jl. A. Yani No. 6, Muara Teweh,<br />
+                    Jl. A. Yani No. 6, Muara Teweh,
+                    <br />
                     Kab. Barito Utara, Kalimantan Tengah
                   </span>
                 </a>
@@ -203,7 +213,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white/8">
                     <Mail className="h-3.5 w-3.5 text-blue-300" />
                   </div>
-                  <span className="break-all">ptsp@kemenag-baritoutara.go.id</span>
+                  <span className="break-all">
+                    ptsp@kemenag-baritoutara.go.id
+                  </span>
                 </a>
               </li>
             </ul>
@@ -222,7 +234,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </p>
             <div className="flex items-center gap-4">
               <span className="text-[11px] text-white/25 flex items-center gap-1">
-                Dibuat dengan <Heart className="h-3 w-3 text-red-400/60 fill-red-400/60" /> untuk masyarakat
+                Dibuat dengan{" "}
+                <Heart className="h-3 w-3 text-red-400/60 fill-red-400/60" />{" "}
+                untuk Sintya Wati
               </span>
               <a
                 href="https://kemenag.go.id"
@@ -247,6 +261,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <ConditionalShell header={<SiteHeader />} footer={footer}>
             {children}
           </ConditionalShell>
+          <Toaster position="top-center" richColors />
         </div>
       </body>
     </html>

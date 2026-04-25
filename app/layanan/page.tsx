@@ -11,56 +11,88 @@ export default async function ServicesPage() {
   );
 
   return (
-    <div className="space-y-6 md:space-y-8">
-      <section className="ptsp-hero-gradient ptsp-grid-bg relative overflow-hidden rounded-3xl px-4 py-6 text-white sm:px-6 sm:py-8 md:px-8 md:py-10">
-        <div className="absolute -left-20 -top-20 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute -bottom-20 -right-20 h-52 w-52 rounded-full bg-[#9f8437]/40 blur-3xl" />
+    <div className="w-full overflow-hidden">
+      {/* Immersive Header */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0d2d8a] via-[#1f4bb7] to-[#1a53c8] pt-12 pb-20 md:pt-16 md:pb-28">
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-white/10 blur-[100px]" />
+        <div className="pointer-events-none absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-[#5eeaa5]/20 blur-[100px]" />
 
-        <div className="relative grid gap-5 lg:grid-cols-[1.1fr,0.9fr] lg:items-end">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
-              <BadgeCheck className="h-3.5 w-3.5" />
-              Katalog Layanan PTSP
-            </span>
-            <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">
-              Jelajahi Layanan Kementerian Agama Secara Cepat & Transparan
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm text-blue-50 sm:text-base">
-              Pilih unit kerja, lihat item layanan, cek detail persyaratan, lalu
-              lanjutkan pengajuan secara online dari perangkat apa pun.
-            </p>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-12">
+          <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur-md">
+                <BadgeCheck className="h-4 w-4 text-[#5eeaa5]" />
+                Katalog Layanan PTSP
+              </span>
+              <h1 className="mt-5 text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
+                Jelajahi Layanan{" "}
+                <span className="bg-gradient-to-r from-[#5eeaa5] to-[#38d9a9] bg-clip-text text-transparent">
+                  Kementerian Agama
+                </span>
+              </h1>
+              <p className="mt-4 text-base leading-relaxed text-blue-100/90 sm:text-lg">
+                Pilih unit kerja, lihat item layanan, cek detail persyaratan,
+                lalu lanjutkan pengajuan secara online dari perangkat apa pun.
+                Cepat, transparan, dan dapat dilacak.
+              </p>
 
-            <div className="mt-4">
-              <Link
-                href="/dashboard/pengajuan/baru"
-                className="inline-flex min-h-10 items-center rounded-xl border border-white/50 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-black/10 backdrop-blur transition hover:bg-white/20"
-              >
-                <ArrowRight className="mr-1.5 h-4 w-4" />
-                Ajukan Layanan
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
-              <p className="text-xs text-blue-100">Unit Layanan</p>
-              <div className="mt-1 flex items-center gap-2 text-xl font-bold sm:text-2xl">
-                <Building2 className="h-5 w-5" />
-                {services.length}
+              <div className="mt-8">
+                <Link
+                  href="/dashboard/pengajuan/baru"
+                  className="inline-flex items-center gap-2.5 rounded-2xl bg-white px-7 py-3.5 text-sm font-bold text-[#1f4bb7] shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-slate-50"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                  Mulai Pengajuan Baru
+                </Link>
               </div>
             </div>
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
-              <p className="text-xs text-blue-100">Total Item Layanan</p>
-              <div className="mt-1 flex items-center gap-2 text-xl font-bold sm:text-2xl">
-                <Layers3 className="h-5 w-5" />
-                {totalItems}
+
+            <div className="flex flex-col gap-4 sm:flex-row lg:flex-col xl:flex-row">
+              <div className="flex items-center gap-4 rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-md shadow-xl lg:w-48">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white">
+                  <Building2 className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
+                    Unit Layanan
+                  </p>
+                  <p className="text-3xl font-black text-white">
+                    {services.length}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 rounded-3xl border border-white/15 bg-white/10 p-5 backdrop-blur-md shadow-xl lg:w-48">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-[#5eeaa5]">
+                  <Layers3 className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
+                    Total Item
+                  </p>
+                  <p className="text-3xl font-black text-white">{totalItems}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <ServicesFilter services={services} />
+      {/* Main Content Area */}
+      <section className="relative -mt-10 mb-20 px-6 sm:px-10 lg:px-12">
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="rounded-[2.5rem] bg-white p-6 sm:p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+            <ServicesFilter services={services} />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

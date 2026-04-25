@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { compressImageToUnder } from "@/lib/image-compression";
 
 type Catalog = any[];
 
@@ -46,10 +47,27 @@ export function NewRequestForm({ catalog }: { catalog: Catalog }) {
     setError("");
     setLoading(true);
 
-    const formData = new FormData(event.currentTarget);
+    const rawFormData = new FormData(event.currentTarget);
+    const finalFormData = new FormData();
+
+    const entries = Array.from(rawFormData.entries());
+    
+    // Kompresi semua file gambar secara paralel
+    await Promise.all(
+      entries.map(async ([key, value]) => {
+        if (value instanceof File && value.size > 0 && value.type.startsWith("image/")) {
+          // Kompres file agar ukurannya diusahakan di bawah 100kb
+          const compressedFile = await compressImageToUnder(value, 100);
+          finalFormData.append(key, compressedFile);
+        } else {
+          finalFormData.append(key, value);
+        }
+      })
+    );
+
     const response = await fetch("/api/requests", {
       method: "POST",
-      body: formData,
+      body: finalFormData,
     });
 
     const result = await response.json().catch(() => ({}));

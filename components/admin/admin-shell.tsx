@@ -22,6 +22,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { isSuperAdmin as checkSuperAdmin } from "@/lib/constants";
 import { useState } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,46 +33,65 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   group?: string;
+  id: string;
 }
 
 const ADMIN_NAV: NavItem[] = [
-  { label: "Ringkasan", href: "/admin", icon: LayoutDashboard, group: "Utama" },
+  {
+    label: "Ringkasan",
+    href: "/admin",
+    icon: LayoutDashboard,
+    group: "Utama",
+    id: "ringkasan",
+  },
   {
     label: "Pengajuan",
     href: "/admin/pengajuan",
     icon: FolderKanban,
     group: "Utama",
+    id: "pengajuan",
   },
   {
     label: "Layanan",
     href: "/admin/layanan",
     icon: FileText,
     group: "Master Data",
+    id: "layanan",
   },
   {
     label: "Item Layanan",
     href: "/admin/item-layanan",
     icon: Files,
     group: "Master Data",
+    id: "item_layanan",
   },
   {
     label: "Form Layanan",
     href: "/admin/form-layanan",
     icon: FormInput,
     group: "Master Data",
+    id: "form_layanan",
   },
   {
     label: "Persyaratan",
     href: "/admin/persyaratan",
     icon: ListChecks,
     group: "Master Data",
+    id: "persyaratan",
   },
-  { label: "Pengguna", href: "/admin/pengguna", icon: Users, group: "Sistem" },
+  {
+    label: "Pengguna",
+    href: "/admin/pengguna",
+    icon: Users,
+    group: "Sistem",
+    id: "pengguna",
+  },
   {
     label: "Dokumen Hasil",
     href: "/admin/dokumen-hasil",
     icon: FileOutput,
     group: "Sistem",
+    id: "dokumen_hasil",
   },
 ];
 
@@ -95,50 +115,56 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onClick}
-      className={`group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200 ${
+      className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all duration-300 ${
         isActive
-          ? "bg-gradient-to-r from-[#1f4bb7] to-[#2557c9] text-white shadow-md shadow-blue-500/20"
-          : "text-slate-300 hover:bg-white/10 hover:text-white"
+          ? "bg-blue-50/80 text-[#1f4bb7] shadow-sm shadow-blue-100/50 border border-blue-100/50"
+          : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent"
       }`}
     >
       <span
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 ${
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-300 ${
           isActive
-            ? "bg-white/20 shadow-sm shadow-white/10"
-            : "bg-white/5 group-hover:bg-white/15"
+            ? "bg-white shadow-sm text-[#1f4bb7]"
+            : "bg-transparent text-slate-400 group-hover:text-slate-600 group-hover:bg-white group-hover:shadow-sm"
         }`}
       >
-        <Icon
-          className={`h-3.5 w-3.5 ${
-            isActive ? "text-white" : "text-slate-400 group-hover:text-white"
-          }`}
-        />
+        <Icon className="h-4 w-4" />
       </span>
       <span className="flex-1 leading-tight truncate">{item.label}</span>
-      {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-60 shrink-0" />}
+      {isActive && (
+        <ChevronRight className="h-4 w-4 opacity-60 shrink-0 text-[#1f4bb7]" />
+      )}
     </Link>
   );
 }
 
 export function AdminShell({
   profile,
+  allowedMenus = [],
   children,
 }: {
   profile: Profile;
+  allowedMenus?: string[];
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const groups = Array.from(new Set(ADMIN_NAV.map((item) => item.group || "")));
+  // Filter navigation items based on role permissions
+  const isSuperAdmin = checkSuperAdmin(profile?.email);
+  const authorizedNav = isSuperAdmin
+    ? ADMIN_NAV
+    : ADMIN_NAV.filter((item) => allowedMenus.includes(item.id));
+
+  const groups = Array.from(
+    new Set(authorizedNav.map((item) => item.group || "")),
+  );
 
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = "/";
   };
-
-  const isSuperAdmin = profile?.role === "super_admin";
 
   const initials = (profile?.full_name || profile?.email || "A")
     .split(" ")
@@ -150,40 +176,36 @@ export function AdminShell({
   const Sidebar = ({ onNavClick }: { onNavClick?: () => void }) => (
     <div className="flex h-full flex-col">
       {/* Logo / Brand */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-white/10">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 border border-white/15">
-          <Shield className="h-4 w-4 text-white" />
+      <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-100">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1f4bb7] to-[#143481] shadow-lg shadow-blue-900/20">
+          <Shield className="h-5 w-5 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-white leading-tight truncate">
-            Panel Admin
+          <p className="text-[15px] font-extrabold text-slate-900 leading-tight truncate">
+            PANEL ADMIN
           </p>
-          <p className="text-[10px] text-blue-200/60 truncate">
-            PTSP Kemenag Barito Utara
+          <p className="text-[11px] font-semibold text-slate-500 truncate">
+            PTSP KEMENAG BARITO UTARA
           </p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {groups.map((group, gi) => {
-          const GroupIcon = GROUP_ICONS[group];
-          const groupItems = ADMIN_NAV.filter(
+      <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+        {groups.map((group) => {
+          const groupItems = authorizedNav.filter(
             (item) => (item.group || "") === group,
           );
           return (
-            <div key={group} className={gi > 0 ? "pt-2" : ""}>
+            <div key={group}>
               {group && (
-                <div className="mb-1.5 mt-2 first:mt-0 flex items-center gap-1.5 px-3">
-                  {GroupIcon && (
-                    <GroupIcon className="h-3 w-3 text-slate-500" />
-                  )}
-                  <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                <div className="mb-3 flex items-center gap-2 px-2">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
                     {group}
                   </p>
                 </div>
               )}
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {groupItems.map((item) => {
                   const isActive =
                     item.href === "/admin"
@@ -199,34 +221,31 @@ export function AdminShell({
                   );
                 })}
               </div>
-              {gi < groups.length - 1 && (
-                <div className="mx-3 mt-3 border-t border-white/[0.06]" />
-              )}
             </div>
           );
         })}
       </nav>
 
       {/* User info + Logout */}
-      <div className="border-t border-white/10 p-3 space-y-2">
+      <div className="border-t border-slate-100 bg-slate-50/50 p-4 space-y-3">
         {/* Profile card */}
-        <div className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 px-3 py-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-400/30 to-blue-600/30 border border-white/15 text-xs font-bold text-white">
+        <div className="flex items-center gap-3 rounded-2xl bg-white border border-slate-200/60 px-3 py-3 shadow-sm">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 to-indigo-50 border border-blue-200/50 text-xs font-black text-[#1f4bb7]">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-white truncate">
+            <p className="text-sm font-bold text-slate-800 truncate">
               {profile?.full_name || profile?.email || "Admin"}
             </p>
             <div className="flex items-center gap-1 mt-0.5">
               {isSuperAdmin ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-300">
-                  <Crown className="h-2.5 w-2.5" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
+                  <Crown className="h-3 w-3" />
                   Super Admin
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-300">
-                  <Shield className="h-2.5 w-2.5" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#1f4bb7]">
+                  <Shield className="h-3 w-3" />
                   Administrator
                 </span>
               )}
@@ -238,12 +257,12 @@ export function AdminShell({
         <button
           type="button"
           onClick={handleSignOut}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200 border border-transparent hover:border-red-500/20"
+          className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 border border-transparent hover:border-red-100"
         >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-red-500/10">
-            <LogOut className="h-3.5 w-3.5" />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition-colors group-hover:bg-red-100 group-hover:text-red-600">
+            <LogOut className="h-4 w-4" />
           </span>
-          <span>Keluar</span>
+          <span>Keluar dari Panel</span>
         </button>
       </div>
     </div>
@@ -252,7 +271,7 @@ export function AdminShell({
   return (
     <div className="flex w-full overflow-hidden bg-slate-50 fixed inset-0">
       {/* ── Desktop Sidebar ─────────────────────────────────────── */}
-      <aside className="hidden lg:flex w-[260px] xl:w-[280px] shrink-0 flex-col bg-[#0f2563] border-r border-white/[0.06]">
+      <aside className="hidden lg:flex w-[280px] shrink-0 flex-col bg-white border-r border-slate-200 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.05)] z-20">
         <Sidebar />
       </aside>
 
@@ -262,11 +281,11 @@ export function AdminShell({
           {/* Backdrop */}
           <button
             type="button"
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
           {/* Drawer */}
-          <aside className="relative z-10 flex w-[260px] flex-col bg-[#0f2563] border-r border-white/[0.06]">
+          <aside className="relative z-10 flex w-[280px] flex-col bg-white border-r border-slate-200 shadow-2xl">
             <Sidebar onNavClick={() => setMobileOpen(false)} />
           </aside>
         </div>
@@ -275,7 +294,7 @@ export function AdminShell({
       {/* ── Main content area ───────────────────────────────────── */}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden bg-slate-50">
         {/* Top bar — visible on mobile (hamburger) + desktop (breadcrumb area) */}
-        <header className="flex items-center gap-3 border-b border-slate-200/80 bg-white px-4 py-3 shrink-0 shadow-sm">
+        <header className="flex items-center gap-3 border-b border-slate-200/80 bg-white px-4 py-3 shrink-0 shadow-sm z-10">
           {/* Mobile hamburger */}
           <button
             type="button"
@@ -302,7 +321,7 @@ export function AdminShell({
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1f4bb7]/10">
               <Shield className="h-3.5 w-3.5 text-[#1f4bb7]" />
             </div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               PTSP Kemenag Barito Utara
             </span>
           </div>
@@ -312,13 +331,13 @@ export function AdminShell({
 
           {/* Role badge */}
           {isSuperAdmin ? (
-            <span className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200/80 px-2.5 py-1 text-[10px] font-semibold text-amber-700">
-              <Crown className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 border border-amber-200/80 px-3 py-1.5 text-[11px] font-bold text-amber-700">
+              <Crown className="h-3.5 w-3.5" />
               Super Admin
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-lg bg-blue-50 border border-blue-200/80 px-2.5 py-1 text-[10px] font-semibold text-[#1f4bb7]">
-              <Shield className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 border border-blue-200/80 px-3 py-1.5 text-[11px] font-bold text-[#1f4bb7]">
+              <Shield className="h-3.5 w-3.5" />
               Administrator
             </span>
           )}

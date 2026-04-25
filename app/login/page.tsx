@@ -3,109 +3,137 @@ import { ArrowRight, BadgeCheck, ShieldCheck, UserRound } from "lucide-react";
 
 export default function LoginSelectorPage() {
   return (
-    <div className="mx-auto max-w-5xl">
-      <section className="relative overflow-hidden rounded-3xl border border-[#d9e4ff] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.08)] md:p-6">
-        <div className="pointer-events-none absolute -left-20 -top-20 h-52 w-52 rounded-full bg-[#1f4bb7]/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-20 h-60 w-60 rounded-full bg-[#9f8437]/15 blur-3xl" />
+    <div className="flex min-h-[calc(100vh-84px)] items-center justify-center p-6 sm:p-10 lg:p-12 relative overflow-hidden bg-gradient-to-br from-[#0a1e5e] via-[#0d2d8a] to-[#1a53c8]">
+      {/* Background Effects */}
+      <div
+        className="absolute inset-0 opacity-[0.08]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+      <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-[#1f4bb7]/40 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-[#5eeaa5]/20 blur-[120px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-[120px]" />
 
-        <div className="relative">
-          <div className="rounded-2xl border border-[#d9e4ff] bg-linear-to-r from-[#1f4bb7] via-[#245bd6] to-[#1a3f97] p-5 text-white md:p-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider">
-              <BadgeCheck className="h-3.5 w-3.5" />
-              Portal PTSP
-            </p>
-            <h1 className="mt-2.5 text-2xl font-extrabold leading-tight sm:text-3xl md:text-4xl">
-              Pilih Jenis Login
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm text-blue-100 sm:text-base">
-              Silakan pilih akses login sesuai peran Anda agar proses layanan
-              berjalan lebih cepat, tepat, dan aman.
-            </p>
+      <div className="relative z-10 w-full max-w-5xl">
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 backdrop-blur-md mb-4 shadow-sm">
+            <BadgeCheck className="h-4 w-4 text-[#5eeaa5]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white">
+              Portal PTSP Kemenag
+            </span>
           </div>
+          <h1 className="text-4xl font-black text-white sm:text-5xl drop-shadow-sm">
+            Pilih Jenis Login
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base text-blue-100/90 sm:text-lg">
+            Silakan masuk sesuai dengan peran Anda untuk melanjutkan. Pastikan
+            Anda memilih portal yang tepat.
+          </p>
+        </div>
 
-          <div className="mt-4 grid gap-3 md:mt-5 md:grid-cols-2">
-            <Link
-              href="/login/pemohon"
-              className="group rounded-2xl border border-emerald-200 bg-linear-to-b from-emerald-50 to-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <UserRound className="h-5 w-5" />
+        <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
+          {/* Card Pemohon */}
+          <Link
+            href="/login/pemohon"
+            className="group relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:bg-white/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:border-white/30"
+          >
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#5eeaa5]/20 blur-3xl transition-opacity group-hover:opacity-100 opacity-50" />
+
+            <div className="relative z-10">
+              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0f8a54] to-[#0d7a4b] text-white shadow-lg shadow-green-900/30">
+                <UserRound className="h-7 w-7" />
               </div>
-              <h2 className="text-xl font-bold text-emerald-800">
-                Login Pemohon
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-emerald-700">
-                Untuk masyarakat/pemohon yang ingin membuat pengajuan, melacak
-                status, dan menerima hasil layanan.
+              <h2 className="text-2xl font-black text-white">Login Pemohon</h2>
+              <p className="mt-3 text-sm leading-relaxed text-blue-50/80">
+                Untuk masyarakat atau pemohon yang ingin membuat pengajuan
+                layanan, melacak status, dan mengunduh dokumen hasil.
               </p>
 
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
-                <li className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <ul className="mt-6 space-y-3">
+                <li className="flex items-center gap-3 text-sm font-medium text-white/90">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#5eeaa5]" />
+                  </div>
                   Ajukan layanan online
                 </li>
-                <li className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <li className="flex items-center gap-3 text-sm font-medium text-white/90">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#5eeaa5]" />
+                  </div>
                   Pantau progres pengajuan
                 </li>
               </ul>
 
-              <div className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition group-hover:bg-emerald-700">
-                Masuk sebagai Pemohon
-                <ArrowRight className="h-4 w-4" />
+              <div className="mt-8 flex items-center justify-between border-t border-white/15 pt-6">
+                <span className="text-sm font-bold text-white transition-colors group-hover:text-[#5eeaa5]">
+                  Masuk Sekarang
+                </span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-all group-hover:bg-[#5eeaa5] group-hover:text-slate-900 group-hover:translate-x-2">
+                  <ArrowRight className="h-4 w-4" />
+                </div>
               </div>
-            </Link>
+            </div>
+          </Link>
 
-            <Link
-              href="/login/petugas"
-              className="group rounded-2xl border border-blue-200 bg-linear-to-b from-blue-50 to-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#e8efff] text-[#1f4bb7]">
-                <ShieldCheck className="h-5 w-5" />
+          {/* Card Petugas */}
+          <Link
+            href="/login/petugas"
+            className="group relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:bg-white/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.2)] hover:border-white/30"
+          >
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#f0c040]/20 blur-3xl transition-opacity group-hover:opacity-100 opacity-50" />
+
+            <div className="relative z-10">
+              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1f4bb7] to-[#2b67f0] text-white shadow-lg shadow-blue-900/30">
+                <ShieldCheck className="h-7 w-7" />
               </div>
-              <h2 className="text-xl font-bold text-[#1f4bb7]">
-                Login Petugas / Admin
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-blue-700">
-                Untuk petugas internal dalam mengelola layanan, memverifikasi
-                berkas, dan memproses pengajuan pemohon.
+              <h2 className="text-2xl font-black text-white">Login Petugas</h2>
+              <p className="mt-3 text-sm leading-relaxed text-blue-50/80">
+                Untuk petugas internal dalam mengelola katalog layanan,
+                memverifikasi berkas, dan memproses pengajuan masuk.
               </p>
 
-              <ul className="mt-3 space-y-1.5 text-sm text-slate-700">
-                <li className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-[#1f4bb7]" />
-                  Verifikasi dan validasi data
+              <ul className="mt-6 space-y-3">
+                <li className="flex items-center gap-3 text-sm font-medium text-white/90">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#f0c040]" />
+                  </div>
+                  Verifikasi validasi data
                 </li>
-                <li className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-[#1f4bb7]" />
-                  Kelola status layanan
+                <li className="flex items-center gap-3 text-sm font-medium text-white/90">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#f0c040]" />
+                  </div>
+                  Manajemen status layanan
                 </li>
               </ul>
 
-              <div className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#1f4bb7] px-3 py-2 text-sm font-semibold text-white transition group-hover:bg-[#183f9a]">
-                Masuk sebagai Petugas
-                <ArrowRight className="h-4 w-4" />
+              <div className="mt-8 flex items-center justify-between border-t border-white/15 pt-6">
+                <span className="text-sm font-bold text-white transition-colors group-hover:text-[#f0c040]">
+                  Masuk Sekarang
+                </span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-all group-hover:bg-[#f0c040] group-hover:text-slate-900 group-hover:translate-x-2">
+                  <ArrowRight className="h-4 w-4" />
+                </div>
               </div>
-            </Link>
-          </div>
-
-          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-            <p className="font-semibold text-slate-900">
-              Belum punya akun pemohon?
-            </p>
-            <p className="mt-1">
-              Daftar akun terlebih dahulu di halaman{" "}
-              <Link
-                href="/register"
-                className="font-semibold text-[#1f4bb7] hover:underline"
-              >
-                Registrasi Pemohon
-              </Link>
-              .
-            </p>
-          </div>
+            </div>
+          </Link>
         </div>
-      </section>
+
+        <div className="mt-10 mx-auto max-w-xl text-center rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <p className="text-sm font-medium text-blue-100">
+            Belum punya akun pemohon?{" "}
+            <Link
+              href="/register"
+              className="font-bold text-white underline decoration-white/30 underline-offset-4 transition-colors hover:text-[#5eeaa5] hover:decoration-[#5eeaa5]"
+            >
+              Daftar Sekarang
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

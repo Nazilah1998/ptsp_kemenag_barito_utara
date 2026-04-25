@@ -19,6 +19,7 @@ import {
   Shield,
 } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { isAdminRole } from "@/lib/constants";
 
 type HeaderProfile = {
   role?: string | null;
@@ -28,7 +29,11 @@ const navItems = [
   { href: "/", label: "Beranda", icon: Home },
   { href: "/layanan", label: "Jenis Layanan", icon: LayoutGrid },
   { href: "/track", label: "Lacak Layanan", icon: Search },
-  { href: "/dashboard/pengajuan/baru", label: "Ajukan Layanan", icon: FilePlus2 },
+  {
+    href: "/dashboard/pengajuan/baru",
+    label: "Ajukan Layanan",
+    icon: FilePlus2,
+  },
   { href: "/kontak", label: "Kontak", icon: Phone },
 ];
 
@@ -64,134 +69,156 @@ export function SiteHeaderClient({
     return () => document.removeEventListener("mousedown", handler);
   }, [loginOpen]);
 
-  const dashboardHref =
-    profile?.role === "admin" || profile?.role === "super_admin"
-      ? "/admin"
-      : "/dashboard";
+  const dashboardHref = isAdminRole(profile?.role) ? "/admin" : "/dashboard";
 
-  const isAdmin = profile?.role === "admin" || profile?.role === "super_admin";
+  const isAdmin = isAdminRole(profile?.role);
   const isHome = pathname === "/";
 
-  // On home page: transparent → white (when scrolled)
-  // On other pages: always blue gradient
+  // On home page: transparent header with white text at top, white header with dark text when scrolled.
+  // On other pages: always blue gradient header with white text.
+  const isTransparent = isHome && !scrolled;
   const needsDarkStyle = isHome && scrolled;
 
   const headerClass = isHome
     ? scrolled
-      ? "bg-white/96 shadow-[0_2px_32px_rgba(15,23,42,0.12)] backdrop-blur-2xl border-b border-slate-200/80"
+      ? "bg-white/95 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-2xl border-b border-slate-100"
       : "bg-transparent"
-    : "bg-gradient-to-r from-[#0d2d8a] to-[#1f4bb7] shadow-[0_4px_24px_rgba(15,23,42,0.2)]";
+    : "bg-gradient-to-r from-[#0d2d8a] to-[#1a3fa3] shadow-lg";
 
   return (
-    <header className={`sticky top-0 z-50 w-full transition-all duration-500 ${headerClass}`}>
+    <header
+      className={`fixed top-0 z-50 w-full transition-all duration-500 ${headerClass}`}
+    >
       {/* Gradient top accent */}
       <div
-        className={`h-[3px] w-full bg-gradient-to-r from-[#1f4bb7] via-[#0f8a54] to-[#9f8437] transition-opacity duration-300 ${
+        className={`h-1 w-full bg-gradient-to-r from-[#1f4bb7] via-[#0f8a54] to-[#f0c040] transition-opacity duration-300 ${
           !isHome || scrolled ? "opacity-100" : "opacity-0"
         }`}
       />
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="flex h-[68px] items-center justify-between gap-4 md:h-[74px]">
-
-          {/* Logo */}
-          <Link href="/" className="group inline-flex min-w-0 flex-shrink-0 items-center gap-3">
-            <div
-              className={`relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl transition-all duration-300 group-hover:scale-105 ${
-                needsDarkStyle ? "bg-[#1f4bb7]/10" : "bg-white/20"
-              }`}
+      <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
+        <div className="flex h-[72px] items-center justify-between gap-4 md:h-[80px]">
+          {/* Logo (Left aligned) */}
+          <div className="flex shrink-0 items-center justify-start">
+            <Link
+              href="/"
+              className="group flex items-center gap-2.5 transition-transform duration-300 hover:scale-105 active:scale-95"
             >
-              <Image
-                src="/kemenag.svg"
-                alt="Logo Kemenag"
-                width={36}
-                height={36}
-                className="h-8 w-8 object-contain drop-shadow"
-              />
-            </div>
-            <div className="min-w-0 leading-tight">
-              <p
-                className={`truncate text-[13px] font-black tracking-widest transition-colors duration-300 ${
-                  needsDarkStyle ? "text-[#1f4bb7]" : "text-white"
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm transition-colors duration-300 sm:h-12 sm:w-12 sm:rounded-2xl ${
+                  needsDarkStyle
+                    ? "bg-gradient-to-br from-[#1f4bb7]/10 to-[#1f4bb7]/5"
+                    : "bg-white/10 backdrop-blur-md border border-white/20"
                 }`}
               >
-                PTSP KEMENAG
-              </p>
-              <p
-                className={`text-[11px] font-medium transition-colors duration-300 ${
-                  needsDarkStyle ? "text-slate-500" : "text-blue-200"
-                }`}
-              >
-                Barito Utara
-              </p>
-            </div>
-          </Link>
+                <Image
+                  src="/kemenag.svg"
+                  alt="Logo Kemenag"
+                  width={28}
+                  height={28}
+                  className="object-contain drop-shadow-md sm:w-8 sm:h-8"
+                />
+              </div>
+              <div className="flex flex-col justify-center whitespace-nowrap">
+                {/* Mobile/Tablet text */}
+                <span
+                  className={`text-[12px] sm:text-[12px] font-black tracking-tight leading-tight transition-colors duration-300 lg:hidden ${
+                    needsDarkStyle ? "text-[#1f4bb7]" : "text-white"
+                  }`}
+                >
+                  PELAYANAN TERPADU SATU PINTU (PTSP)
+                </span>
+                <span
+                  className={`text-[13px] sm:text-[9px] font-semibold tracking-wide leading-tight transition-colors duration-300 lg:hidden ${
+                    needsDarkStyle ? "text-slate-500" : "text-blue-200"
+                  }`}
+                >
+                  KEMENAG BARITO UTARA
+                </span>
+                {/* Desktop text */}
+                <span
+                  className={`hidden lg:block text-[12px] font-black tracking-wider leading-tight transition-colors duration-300 ${
+                    needsDarkStyle ? "text-[#1f4bb7]" : "text-white"
+                  }`}
+                >
+                  PELAYANAN TERPADU SATU PINTU (PTSP)
+                </span>
+                <span
+                  className={`hidden lg:block text-[9px] font-semibold tracking-wide leading-tight transition-colors duration-300 ${
+                    needsDarkStyle ? "text-slate-500" : "text-blue-200"
+                  }`}
+                >
+                  KEMENTERIAN AGAMA KABUPATEN BARITO UTARA
+                </span>
+              </div>
+            </Link>
+          </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden items-center gap-0.5 lg:flex">
+          {/* Desktop Nav (Center aligned) */}
+          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`relative inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13.5px] font-semibold transition-all duration-200 ${
+                  className={`group flex items-center gap-2 rounded-full px-4 py-2.5 text-[13.5px] font-bold transition-all duration-300 ${
                     isActive
                       ? needsDarkStyle
                         ? "bg-[#1f4bb7]/10 text-[#1f4bb7]"
-                        : "bg-white/20 text-white"
+                        : "bg-white/20 text-white shadow-inner"
                       : needsDarkStyle
-                        ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        : "text-white/80 hover:bg-white/15 hover:text-white"
+                        ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
                   }`}
                 >
+                  <Icon
+                    className={`h-4 w-4 transition-transform duration-300 ${isActive ? "scale-110" : "opacity-70 group-hover:scale-110 group-hover:opacity-100"}`}
+                  />
                   {item.label}
-                  {isActive && (
-                    <span
-                      className={`absolute bottom-1 left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full ${
-                        needsDarkStyle ? "bg-[#1f4bb7]" : "bg-white"
-                      }`}
-                    />
-                  )}
                 </Link>
               );
             })}
             {profile && (
               <Link
                 href={dashboardHref}
-                className={`relative inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13.5px] font-semibold transition-all duration-200 ${
-                  pathname.startsWith("/dashboard") || pathname.startsWith("/admin")
+                className={`group flex items-center gap-2 rounded-full px-4 py-2.5 text-[13.5px] font-bold transition-all duration-300 ${
+                  pathname.startsWith("/dashboard") ||
+                  pathname.startsWith("/admin")
                     ? needsDarkStyle
                       ? "bg-[#1f4bb7]/10 text-[#1f4bb7]"
-                      : "bg-white/20 text-white"
+                      : "bg-white/20 text-white shadow-inner"
                     : needsDarkStyle
-                      ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                      : "text-white/80 hover:bg-white/15 hover:text-white"
+                      ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
+                      : "text-white/80 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                <LayoutDashboard className="h-3.5 w-3.5" />
+                <LayoutDashboard className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 opacity-70 group-hover:opacity-100" />
                 Dashboard
               </Link>
             )}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden items-center gap-2.5 lg:flex">
+          {/* Desktop CTA (Right aligned) */}
+          <div className="hidden w-1/4 items-center justify-end lg:flex">
             {profile ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div
-                  className={`flex items-center gap-2 rounded-xl px-3.5 py-2 ${
-                    needsDarkStyle ? "bg-slate-100 text-slate-700" : "bg-white/15 text-white"
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 backdrop-blur-md transition-colors duration-300 ${
+                    needsDarkStyle
+                      ? "bg-slate-100 border border-slate-200 text-slate-700"
+                      : "bg-white/10 border border-white/20 text-white"
                   }`}
                 >
                   {isAdmin ? (
-                    <Shield className="h-4 w-4 text-amber-500" />
+                    <Shield className="h-4 w-4 text-[#f0c040]" />
                   ) : (
                     <UserCircle2
                       className={`h-4 w-4 ${needsDarkStyle ? "text-[#1f4bb7]" : "text-blue-200"}`}
                     />
                   )}
-                  <span className="text-[13px] font-semibold">
+                  <span className="text-sm font-bold">
                     {isAdmin ? "Admin" : "Pemohon"}
                   </span>
                 </div>
@@ -202,9 +229,13 @@ export function SiteHeaderClient({
                 <button
                   type="button"
                   onClick={() => setLoginOpen((prev) => !prev)}
-                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#1f4bb7] to-[#2b5ce6] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-900/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-900/30 active:translate-y-0"
+                  className={`group flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 ${
+                    needsDarkStyle
+                      ? "bg-gradient-to-r from-[#1f4bb7] to-[#2b67f0] text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+                      : "bg-white text-[#1f4bb7] shadow-lg shadow-black/10 hover:shadow-xl hover:bg-slate-50"
+                  }`}
                 >
-                  <LogIn className="h-4 w-4" />
+                  <LogIn className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
                   Masuk
                   <ChevronDown
                     className={`h-3.5 w-3.5 transition-transform duration-300 ${
@@ -215,50 +246,59 @@ export function SiteHeaderClient({
 
                 {/* Login dropdown */}
                 <div
-                  className={`absolute right-0 top-[calc(100%+10px)] z-50 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-900/20 transition-all duration-200 ${
+                  className={`absolute right-0 top-[calc(100%+16px)] z-50 w-60 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 origin-top-right ${
                     loginOpen
-                      ? "pointer-events-auto translate-y-0 opacity-100"
-                      : "pointer-events-none -translate-y-2 opacity-0"
+                      ? "scale-100 opacity-100 pointer-events-auto"
+                      : "scale-95 opacity-0 pointer-events-none"
                   }`}
                 >
                   <div className="p-2">
-                    <p className="px-3 py-2 text-[10.5px] font-black uppercase tracking-widest text-slate-400">
-                      Masuk sebagai
+                    <p className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Masuk Sebagai
                     </p>
                     <Link
                       href="/login/pemohon"
                       onClick={() => setLoginOpen(false)}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-150 hover:bg-blue-50 hover:text-[#1f4bb7]"
+                      className="group/item flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-blue-50/80"
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100">
-                        <UserCircle2 className="h-4 w-4 text-[#1f4bb7]" />
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100/50 text-[#1f4bb7] transition-colors group-hover/item:bg-blue-200/50">
+                        <UserCircle2 className="h-5 w-5" />
                       </span>
                       <div>
-                        <p className="text-sm font-bold">Pemohon</p>
-                        <p className="text-[11px] font-normal text-slate-400">Masyarakat umum</p>
+                        <p className="text-sm font-bold text-slate-700 transition-colors group-hover/item:text-[#1f4bb7]">
+                          Pemohon
+                        </p>
+                        <p className="text-xs font-medium text-slate-400">
+                          Masyarakat Umum
+                        </p>
                       </div>
                     </Link>
                     <Link
                       href="/login/petugas"
                       onClick={() => setLoginOpen(false)}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-150 hover:bg-green-50 hover:text-[#0f8a54]"
+                      className="group/item flex items-center gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-emerald-50/80"
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-green-100">
-                        <Shield className="h-4 w-4 text-[#0f8a54]" />
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100/50 text-[#0f8a54] transition-colors group-hover/item:bg-emerald-200/50">
+                        <Shield className="h-5 w-5" />
                       </span>
                       <div>
-                        <p className="text-sm font-bold">Petugas</p>
-                        <p className="text-[11px] font-normal text-slate-400">Staff Kemenag</p>
+                        <p className="text-sm font-bold text-slate-700 transition-colors group-hover/item:text-[#0f8a54]">
+                          Petugas
+                        </p>
+                        <p className="text-xs font-medium text-slate-400">
+                          Staff Kemenag
+                        </p>
                       </div>
                     </Link>
                   </div>
-                  <div className="border-t border-slate-100 px-2 pb-2 pt-1.5">
+                  <div className="bg-slate-50 p-3 border-t border-slate-100">
                     <Link
                       href="/register"
                       onClick={() => setLoginOpen(false)}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-50 py-2 text-xs font-bold text-slate-600 transition-all duration-150 hover:bg-[#1f4bb7] hover:text-white"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-slate-600 shadow-sm border border-slate-200 transition-all duration-200 hover:border-[#1f4bb7] hover:text-[#1f4bb7] hover:shadow-md"
                     >
-                      Belum punya akun? Daftar
+                      Belum punya akun?{" "}
+                      <span className="text-[#1f4bb7]">Daftar</span>
                     </Link>
                   </div>
                 </div>
@@ -267,34 +307,42 @@ export function SiteHeaderClient({
           </div>
 
           {/* Mobile hamburger */}
-          <button
-            type="button"
-            aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
-            onClick={() => setMobileOpen((prev) => !prev)}
-            className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border transition-all duration-200 active:scale-95 lg:hidden ${
-              needsDarkStyle
-                ? "border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
-                : "border-white/25 bg-white/15 text-white hover:bg-white/25"
-            }`}
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="flex w-1/4 items-center justify-end lg:hidden">
+            <button
+              type="button"
+              aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
+              onClick={() => setMobileOpen((prev) => !prev)}
+              className={`inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border backdrop-blur-md transition-all duration-200 active:scale-90 ${
+                needsDarkStyle
+                  ? "border-slate-200 bg-white/80 text-slate-700 hover:bg-slate-100 shadow-sm"
+                  : "border-white/20 bg-white/10 text-white hover:bg-white/20 shadow-inner"
+              }`}
+            >
+              {mobileOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
         <div
-          className={`overflow-hidden transition-all duration-300 ease-in-out lg:hidden ${
-            mobileOpen ? "max-h-[600px] opacity-100 pb-4" : "max-h-0 opacity-0"
+          className={`lg:hidden transition-[transform,opacity] duration-300 ease-out origin-top will-change-transform ${
+            mobileOpen
+              ? "scale-y-100 opacity-100 pb-5"
+              : "scale-y-0 opacity-0 pointer-events-none h-0"
           }`}
         >
           <div
-            className={`rounded-2xl border p-3 backdrop-blur-xl ${
+            className={`rounded-3xl border p-4 backdrop-blur-2xl transition-colors duration-300 ${
               needsDarkStyle
-                ? "border-slate-200 bg-white shadow-xl"
-                : "border-white/15 bg-white/10"
+                ? "border-slate-200 bg-white/95 shadow-2xl shadow-slate-900/10"
+                : "border-white/20 bg-white/10 shadow-2xl shadow-black/20"
             }`}
           >
-            <nav className="space-y-0.5">
+            <nav className="flex flex-col gap-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -303,17 +351,17 @@ export function SiteHeaderClient({
                     key={item.label}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ${
+                    className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 text-sm font-bold transition-all duration-200 ${
                       isActive
                         ? needsDarkStyle
                           ? "bg-[#1f4bb7]/10 text-[#1f4bb7]"
-                          : "bg-white/25 text-white"
+                          : "bg-white/20 text-white shadow-inner"
                         : needsDarkStyle
-                          ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                          : "text-white/80 hover:bg-white/15 hover:text-white"
+                          ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
+                          : "text-white/80 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <Icon className="h-5 w-5 flex-shrink-0" />
                     {item.label}
                   </Link>
                 );
@@ -322,53 +370,57 @@ export function SiteHeaderClient({
                 <Link
                   href={dashboardHref}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-150 ${
+                  className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 text-sm font-bold transition-all duration-200 ${
                     needsDarkStyle
-                      ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                      : "text-white/80 hover:bg-white/15 hover:text-white"
+                      ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
+                      : "text-white/80 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
+                  <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
                   Dashboard
                 </Link>
               )}
             </nav>
 
-            <div className={`mt-3 border-t pt-3 ${needsDarkStyle ? "border-slate-200" : "border-white/15"}`}>
+            <div
+              className={`mt-4 border-t pt-4 ${needsDarkStyle ? "border-slate-200" : "border-white/20"}`}
+            >
               {profile ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   <div
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2.5 ${
-                      needsDarkStyle ? "bg-slate-100 text-slate-700" : "bg-white/10 text-white"
+                    className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 ${
+                      needsDarkStyle
+                        ? "bg-slate-100 text-slate-700"
+                        : "bg-white/10 text-white shadow-inner"
                     }`}
                   >
                     {isAdmin ? (
-                      <Shield className="h-4 w-4 text-amber-500" />
+                      <Shield className="h-5 w-5 text-[#f0c040]" />
                     ) : (
-                      <UserCircle2 className="h-4 w-4 opacity-70" />
+                      <UserCircle2 className="h-5 w-5 opacity-80" />
                     )}
-                    <span className="text-sm font-semibold">
+                    <span className="text-sm font-bold">
                       {isAdmin ? "Admin" : "Pemohon"}
                     </span>
                   </div>
                   <SignOutButton />
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <Link
                     href="/login/pemohon"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1f4bb7] px-3 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:bg-[#1a3fa3] active:scale-95"
+                    className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#1f4bb7] to-[#2b67f0] p-4 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
                   >
-                    <UserCircle2 className="h-4 w-4" />
+                    <UserCircle2 className="h-6 w-6" />
                     Pemohon
                   </Link>
                   <Link
                     href="/login/petugas"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-1.5 rounded-xl bg-[#0f8a54] px-3 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:bg-[#0b7446] active:scale-95"
+                    className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0f8a54] to-[#0d7a4b] p-4 text-sm font-bold text-white shadow-lg shadow-green-900/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
                   >
-                    <Shield className="h-4 w-4" />
+                    <Shield className="h-6 w-6" />
                     Petugas
                   </Link>
                 </div>
