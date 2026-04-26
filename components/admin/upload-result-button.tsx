@@ -1,11 +1,19 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Upload, Loader2, FileUp } from "lucide-react";
 import { toast } from "sonner";
 import { uploadResultDocumentAction } from "@/lib/actions/admin";
 
-export function UploadResultButton({ requestId }: { requestId: string }) {
+export function UploadResultButton({
+  requestId,
+  hasFile,
+}: {
+  requestId: string;
+  hasFile?: boolean;
+}) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,6 +44,7 @@ export function UploadResultButton({ requestId }: { requestId: string }) {
           id: toastId,
           description: "Dokumen hasil layanan telah diperbarui.",
         });
+        router.refresh();
       } catch (error: any) {
         toast.error("Gagal mengunggah", {
           id: toastId,
@@ -67,7 +76,11 @@ export function UploadResultButton({ requestId }: { requestId: string }) {
         ) : (
           <FileUp className="h-4 w-4" />
         )}
-        {isPending ? "Mengunggah..." : "Upload Manual"}
+        {isPending
+          ? "Mengunggah..."
+          : hasFile
+            ? "Upload Ulang"
+            : "Upload Manual"}
       </button>
     </>
   );

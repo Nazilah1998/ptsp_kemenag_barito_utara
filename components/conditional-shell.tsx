@@ -21,6 +21,7 @@ export function ConditionalShell({
   }
 
   const isHome = pathname === "/";
+  const isDashboard = pathname.startsWith("/dashboard");
 
   return (
     <>
@@ -30,7 +31,13 @@ export function ConditionalShell({
       >
         {children}
       </main>
-      {footer}
+      {!isDashboard && footer}
+      {isDashboard && (
+        <footer className="border-t border-slate-200 bg-white py-4 text-center text-[11px] font-medium text-slate-400">
+          © {new Date().getFullYear()} PTSP Kantor Kementerian Agama Kab. Barito
+          Utara
+        </footer>
+      )}
     </>
   );
 }

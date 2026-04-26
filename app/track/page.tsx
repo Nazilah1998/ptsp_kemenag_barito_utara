@@ -13,6 +13,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { StatusBadge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { getDrivePreviewUrl } from "@/lib/google-drive";
 
 export default async function TrackPage({
   searchParams,
@@ -28,6 +29,13 @@ export default async function TrackPage({
   async function getSignedUrl(bucket: string, path?: string | null) {
     if (!path) return null;
     if (path === "EXPIRED") return "EXPIRED";
+
+    // Handle Google Drive links
+    if (path.startsWith("gdrive:")) {
+      const fileId = path.replace("gdrive:", "");
+      return getDrivePreviewUrl(fileId);
+    }
+
     const { data } = await admin.storage
       .from(bucket)
       .createSignedUrl(path, 3600);

@@ -11,14 +11,13 @@ import { isAdminRole } from "@/lib/constants";
 
 type LoginRoleMode = "pemohon" | "petugas";
 
+import { getEmailByPhoneAction } from "@/lib/actions/login-helper";
+
 function normalizeWhatsappNumber(raw: string) {
-  const digits = raw.replace(/[^\d]/g, "");
+  const digits = raw.replace(/\D/g, "");
   if (!digits) return "";
-  if (digits.startsWith("62")) return `+${digits}`;
-  if (digits.startsWith("0")) return `+62${digits.slice(1)}`;
-  if (digits.startsWith("8")) return `+62${digits}`;
-  if (raw.startsWith("+")) return `+${digits}`;
-  return `+${digits}`;
+  if (digits.startsWith("62")) return `0${digits.slice(2)}`;
+  return digits;
 }
 
 export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
@@ -66,47 +65,24 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
         return;
       }
 
-      const { data: profileByPhone, error: profilePhoneError } = await supabase
-        .from("profiles")
-        .select("id, phone, role")
-        .or(`phone.eq.${normalizedPhone},phone.eq.${phoneRaw}`)
-        .maybeSingle();
+      // Use the server-side helper to get email (bypasses RLS)
+      const result = await getEmailByPhoneAction(normalizedPhone);
 
-      if (profilePhoneError || !profileByPhone) {
+      if (result.error || !result.email) {
         setLoading(false);
-        setError("Nomor WhatsApp tidak ditemukan. Pastikan sudah terdaftar.");
+        setError(result.error || "Nomor WhatsApp tidak ditemukan.");
         return;
       }
 
-      const { data: profileDetail, error: detailError } = await supabase
-        .from("profiles")
-        .select("id, phone, role")
-        .eq("id", profileByPhone.id)
-        .maybeSingle();
+      email = result.email;
+    }
 
-      if (detailError || !profileDetail) {
-        setLoading(false);
-        setError("Data akun tidak valid. Hubungi admin PTSP.");
-        return;
-      }
-
-      const { error: userResByIdError } = await supabase.auth.getUser();
-
-      if (userResByIdError && !email) {
-        setLoading(false);
-        setError(
-          "Masuk dengan WA membutuhkan email akun yang sesuai. Hubungi admin.",
-        );
-        return;
-      }
-
-      if (!email) {
-        setLoading(false);
-        setError(
-          "Sistem WA login belum memiliki pemetaan email pada akun ini. Silakan hubungi admin untuk sinkronisasi.",
-        );
-        return;
-      }
+    if (!email) {
+      setLoading(false);
+      setError(
+        "Akun ini belum memiliki email yang valid. Silakan hubungi admin.",
+      );
+      return;
     }
 
     if (mode === "petugas") {
@@ -160,7 +136,9 @@ export function LoginFormByRole({ mode }: { mode: LoginRoleMode }) {
     if (mode === "petugas" && isPetugasRole && profile?.is_verified === false) {
       await supabase.auth.signOut();
       setLoading(false);
-      setError("Akun Anda sedang menunggu verifikasi dari Super Admin. Silakan hubungi admin untuk aktivasi.");
+      setError(
+        "Akun Anda sedang menunggu verifikasi dari Super Admin. Silakan hubungi admin untuk aktivasi.",
+      );
       return;
     }
 

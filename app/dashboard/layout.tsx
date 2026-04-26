@@ -10,9 +10,11 @@ export default async function DashboardLayout({
   await requireAuth();
 
   return (
-    <div className="grid min-h-screen gap-6 lg:grid-cols-[260px,1fr]">
-      <DashboardSidebar />
-      <div>{children}</div>
+    <div className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="grid items-start gap-5 md:grid-cols-[220px,1fr] lg:gap-6 lg:grid-cols-[240px,1fr] xl:grid-cols-[260px,1fr]">
+        <DashboardSidebar />
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
     </div>
   );
 }

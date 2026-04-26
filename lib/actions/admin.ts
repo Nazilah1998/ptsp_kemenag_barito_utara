@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils";
+import { uploadToDrive } from "@/lib/google-drive";
 
 const serviceSchema = z.object({
   name: z.string().min(3),
@@ -299,31 +300,40 @@ export async function uploadResultDocumentAction(formData: FormData) {
 
   const fileExt = file.name.split(".").pop() || "pdf";
   const fileName = `${request.request_number}_MANUAL.${fileExt}`;
-  const filePath = `${request.user_id}/${request.id}/${fileName}`;
 
-  const fileBuffer = await file.arrayBuffer();
+  // Check for existing document to delete from Google Drive if it exists
+  const { data: existingDoc } = await admin
+    .from("generated_documents")
+    .select("file_path")
+    .eq("request_id", request.id)
+    .maybeSingle();
 
-  const { error: uploadError } = await admin.storage
-    .from("generated-documents")
-    .upload(filePath, fileBuffer, {
-      contentType: file.type,
-      upsert: true,
-    });
-
-  if (uploadError) {
-    throw new Error(`Gagal mengunggah file: ${uploadError.message}`);
+  if (existingDoc?.file_path?.startsWith("gdrive:")) {
+    const oldFileId = existingDoc.file_path.replace("gdrive:", "");
+    // Import deleteFromDrive if not already available in this scope
+    const { deleteFromDrive } = await import("@/lib/google-drive");
+    await deleteFromDrive(oldFileId);
   }
 
-  await admin.from("generated_documents").upsert(
-    {
-      request_id: request.id,
-      file_name: fileName,
-      file_path: filePath,
-      generated_by: adminProfile.id,
-      generated_at: new Date().toISOString(),
-    },
-    { onConflict: "request_id" },
-  );
+  // Upload to Google Drive instead of Supabase
+  const driveFile = await uploadToDrive(file);
+  const filePath = `gdrive:${driveFile.id}`;
+
+  if (!driveFile.id) {
+    throw new Error(`Gagal mengunggah file ke Google Drive`);
+  }
+
+  // Delete any existing generated document for this request (including old Supabase ones)
+  await admin.from("generated_documents").delete().eq("request_id", request.id);
+
+  // Insert the new Google Drive document
+  await admin.from("generated_documents").insert({
+    request_id: request.id,
+    file_name: fileName,
+    file_path: filePath,
+    generated_by: adminProfile.id,
+    generated_at: new Date().toISOString(),
+  });
 
   const nextStatus = ["approved", "completed"].includes(request.status)
     ? "completed"
@@ -370,4 +380,55 @@ export async function reorderServicesAction(orderedIds: number[]) {
 
   await Promise.all(updates);
   revalidatePath("/admin/layanan");
+}
+
+export async function deleteRequestAction(formData: FormData) {
+  const adminProfile = await requireAdmin();
+  const admin = createAdminClient();
+  const requestId = String(formData.get("request_id"));
+
+  if (!requestId) {
+    throw new Error("ID Pengajuan tidak valid");
+  }
+
+  // 1. Get all associated files from Google Drive
+  const [{ data: reqDocs }, { data: genDocs }] = await Promise.all([
+    admin
+      .from("service_request_documents")
+      .select("file_path")
+      .eq("request_id", requestId),
+    admin
+      .from("generated_documents")
+      .select("file_path")
+      .eq("request_id", requestId),
+  ]);
+
+  // 2. Delete files from Google Drive
+  const { deleteFromDrive } = await import("@/lib/google-drive");
+
+  const allFilePaths = [
+    ...(reqDocs || []).map((d) => d.file_path),
+    ...(genDocs || []).map((d) => d.file_path),
+  ];
+
+  for (const path of allFilePaths) {
+    if (path?.startsWith("gdrive:")) {
+      const fileId = path.replace("gdrive:", "");
+      await deleteFromDrive(fileId);
+    }
+  }
+
+  // 3. Delete from database
+  const { error } = await admin
+    .from("service_requests")
+    .delete()
+    .eq("id", requestId);
+
+  if (error) {
+    throw new Error(`Gagal menghapus pengajuan: ${error.message}`);
+  }
+
+  revalidatePath("/admin/pengajuan");
+  revalidatePath("/admin/dokumen-hasil");
+  redirect("/admin/pengajuan");
 }

@@ -9,8 +9,6 @@ import {
 import { requireAuth } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/card";
-import { DashboardFaq } from "@/components/dashboard/dashboard-faq";
-
 export default async function DashboardHomePage() {
   const profile = await requireAuth();
   const admin = createAdminClient();
@@ -37,29 +35,47 @@ export default async function DashboardHomePage() {
 
   return (
     <div className="space-y-5 md:space-y-7">
-      <section className="ptsp-hero-gradient ptsp-grid-bg overflow-hidden rounded-2xl p-3 md:p-4 lg:p-5">
-        <div className="mx-auto max-w-3xl grid gap-3 lg:grid-cols-[1.2fr,0.8fr] lg:items-end">
+      <section className="relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 shadow-sm border border-slate-200">
+        {/* Soft blue accent line at the top */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1f4bb7] to-[#0f8a54]"></div>
+
+        <div className="relative mx-auto grid gap-6 lg:grid-cols-[1fr,auto] lg:items-center">
           <div>
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#1f4bb7]">
               <Sparkles className="h-3.5 w-3.5" />
-              Dashboard Pemohon
-            </span>
-            <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
-              Selamat datang, {profile.full_name || profile.email}
+              Ruang Pemohon
+            </div>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Halo, {profile.full_name || "Pemohon"} 👋
             </h1>
-            <p className="mt-2 text-sm text-blue-50 sm:text-base">
-              Pantau status layanan, kirim pengajuan baru, dan lihat progres
-              proses layanan Anda.
+            <p className="mt-2 text-sm leading-relaxed text-slate-500 sm:text-base max-w-xl">
+              Pantau status layanan, kirim pengajuan baru, dan kelola dokumen
+              Anda dengan mudah dan transparan.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur">
-              <p className="text-[11px] text-blue-100">Total Pengajuan</p>
-              <p className="mt-1 text-xl font-bold">{stats.total}</p>
+
+          <div className="flex gap-4">
+            <div className="flex flex-col justify-center rounded-xl border border-slate-100 bg-slate-50 px-6 py-4">
+              <div className="flex items-center gap-2 mb-1">
+                <ClipboardList className="h-4 w-4 text-slate-400" />
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Total Pengajuan
+                </p>
+              </div>
+              <p className="text-3xl font-black text-[#1f4bb7]">
+                {stats.total}
+              </p>
             </div>
-            <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur">
-              <p className="text-[11px] text-blue-100">Selesai</p>
-              <p className="mt-1 text-xl font-bold">{stats.finished}</p>
+            <div className="flex flex-col justify-center rounded-xl border border-emerald-100 bg-emerald-50 px-6 py-4">
+              <div className="flex items-center gap-2 mb-1">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
+                  Selesai
+                </p>
+              </div>
+              <p className="text-3xl font-black text-emerald-700">
+                {stats.finished}
+              </p>
             </div>
           </div>
         </div>
@@ -133,8 +149,6 @@ export default async function DashboardHomePage() {
           </Link>
         </div>
       </Card>
-
-      <DashboardFaq />
     </div>
   );
 }

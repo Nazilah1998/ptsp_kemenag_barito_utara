@@ -1,9 +1,17 @@
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DokumenHasilClient } from "@/components/admin/dokumen-hasil/dokumen-hasil-client";
+import { getDrivePreviewUrl } from "@/lib/google-drive";
 
 async function getSignedUrl(path?: string | null) {
   if (!path) return null;
+
+  // Handle Google Drive links
+  if (path.startsWith("gdrive:")) {
+    const fileId = path.replace("gdrive:", "");
+    return getDrivePreviewUrl(fileId);
+  }
+
   const admin = createAdminClient();
   const { data } = await admin.storage
     .from("generated-documents")

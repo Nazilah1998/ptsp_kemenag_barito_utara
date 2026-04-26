@@ -13,29 +13,37 @@ export default async function NewRequestPage() {
 
   return (
     <div className="space-y-5 md:space-y-7">
-      <section className="ptsp-hero-gradient ptsp-grid-bg overflow-hidden rounded-2xl p-4 text-white sm:p-6">
-        <div className="grid gap-5 lg:grid-cols-[1.2fr,0.8fr] lg:items-end">
+      <section className="relative overflow-hidden rounded-2xl bg-white p-6 sm:p-8 shadow-sm border border-slate-200">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1f4bb7] to-[#0f8a54]"></div>
+
+        <div className="relative grid gap-6 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
           <div>
-            <span className="inline-flex rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold">
-              Pengajuan Layanan
-            </span>
-            <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
-              Buat Pengajuan Baru dengan Alur yang Lebih Cepat
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#1f4bb7]">
+              ✨ Pengajuan Layanan
+            </div>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Buat Pengajuan Baru
             </h1>
-            <p className="mt-2 text-sm text-blue-50 sm:text-base">
-              Pilih unit layanan, tentukan item layanan, isi data pemohon, lalu
-              unggah dokumen persyaratan dalam satu halaman.
+            <p className="mt-2 text-sm leading-relaxed text-slate-500 sm:text-base max-w-xl">
+              Pilih unit layanan, tentukan item layanan, lengkapi form, lalu
+              unggah dokumen persyaratan Anda dengan mudah dalam satu alur.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur">
-              <p className="text-[11px] text-blue-100">Unit Layanan</p>
-              <p className="mt-1 text-xl font-bold">{catalog.length}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col justify-center rounded-xl border border-slate-100 bg-slate-50 px-6 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                Unit Layanan
+              </p>
+              <p className="text-3xl font-black text-[#1f4bb7]">
+                {catalog.length}
+              </p>
             </div>
-            <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur">
-              <p className="text-[11px] text-blue-100">Item Layanan</p>
-              <p className="mt-1 text-xl font-bold">{totalItems}</p>
+            <div className="flex flex-col justify-center rounded-xl border border-slate-100 bg-slate-50 px-6 py-4">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                Item Layanan
+              </p>
+              <p className="text-3xl font-black text-[#1f4bb7]">{totalItems}</p>
             </div>
           </div>
         </div>

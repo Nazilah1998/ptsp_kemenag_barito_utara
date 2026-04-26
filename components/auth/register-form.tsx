@@ -9,16 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
+import { registerPemohonAction } from "@/lib/actions/register-pemohon";
+
 function normalizeWhatsappNumber(value: string) {
   const digits = value.replace(/\D/g, "");
   if (!digits) return "";
   if (digits.startsWith("62")) return `0${digits.slice(2)}`;
   return digits;
-}
-
-function buildInternalEmailFromPhone(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  return `pemohon.${digits}@ptsp.local`;
 }
 
 export function RegisterForm() {
@@ -34,13 +31,13 @@ export function RegisterForm() {
     setMessage("");
     setLoading(true);
 
-    const formData = new FormData(event.currentTarget);
-    const full_name = String(formData.get("full_name") || "").trim();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const rawPhone = String(formData.get("phone") || "").trim();
-    const address = String(formData.get("address") || "").trim();
-    const password = String(formData.get("password") || "");
-
     const normalizedPhone = normalizeWhatsappNumber(rawPhone);
+
+    // Replace the phone in formData with normalized one
+    formData.set("phone", normalizedPhone);
 
     if (!normalizedPhone || normalizedPhone.length < 10) {
       setLoading(false);
@@ -48,62 +45,35 @@ export function RegisterForm() {
       return;
     }
 
-    const supabase = createClient();
+    try {
+      const result = await registerPemohonAction(formData);
+      if (result.success) {
+        setMessage(
+          "Registrasi berhasil! Mengalihkan Anda ke halaman login dalam 2 detik...",
+        );
 
-    const { data: existingProfile, error: checkError } = await supabase
-      .from("profiles")
-      .select("id, phone")
-      .or(`phone.eq.${normalizedPhone},phone.eq.${rawPhone}`)
-      .maybeSingle();
-
-    if (checkError) {
+        // Automatic redirect after 2 seconds
+        setTimeout(() => {
+          router.push("/login/pemohon");
+          router.refresh();
+        }, 2000);
+      }
+    } catch (err: any) {
+      setError(err.message || "Gagal membuat akun.");
+    } finally {
       setLoading(false);
-      setError("Gagal memeriksa nomor telepon. Silakan coba lagi.");
-      return;
     }
-
-    if (existingProfile) {
-      setLoading(false);
-      setError("Nomor sudah terdaftar. Silakan gunakan nomor lain.");
-      return;
-    }
-
-    const internalEmail = buildInternalEmailFromPhone(normalizedPhone);
-
-    const { error: signUpError } = await supabase.auth.signUp({
-      email: internalEmail,
-      password,
-      options: {
-        emailRedirectTo: undefined,
-        data: {
-          full_name,
-          phone: normalizedPhone,
-          address,
-          role: "user",
-          plain_password: password,
-          registration_source: "pemohon_phone_only",
-        },
-      },
-    });
-
-    setLoading(false);
-
-    if (signUpError) {
-      setError(signUpError.message);
-      return;
-    }
-
-    setMessage(
-      "Registrasi berhasil. Silakan login menggunakan nomor WhatsApp dan password.",
-    );
-    router.push("/login/pemohon");
-    router.refresh();
   };
 
   return (
-    <form className="space-y-3" onSubmit={onSubmit}>
+    <form className="space-y-3" onSubmit={onSubmit} autoComplete="off">
       <Field label="Nama Lengkap" required>
-        <Input name="full_name" required placeholder="Masukkan nama lengkap" />
+        <Input
+          name="full_name"
+          required
+          placeholder="Masukkan nama lengkap"
+          autoComplete="off"
+        />
       </Field>
 
       <Field
@@ -115,6 +85,7 @@ export function RegisterForm() {
           name="phone"
           required
           placeholder="Masukkan nomor WhatsApp aktif"
+          autoComplete="off"
         />
       </Field>
 
@@ -124,6 +95,7 @@ export function RegisterForm() {
           required
           placeholder="Masukkan alamat lengkap"
           className="min-h-24"
+          autoComplete="off"
         />
       </Field>
 
@@ -136,6 +108,7 @@ export function RegisterForm() {
             required
             placeholder="Masukkan password"
             className="pr-11"
+            autoComplete="new-password"
           />
           <button
             type="button"

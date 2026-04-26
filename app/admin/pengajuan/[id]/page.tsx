@@ -8,7 +8,9 @@ import { Field } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { updateRequestStatusAction } from "@/lib/actions/admin";
+import { DeleteRequestButton } from "@/components/admin/delete-request-button";
 import { formatDate } from "@/lib/utils";
+import { getDrivePreviewUrl } from "@/lib/google-drive";
 import { UploadResultButton } from "@/components/admin/upload-result-button";
 import {
   ArrowLeft,
@@ -24,10 +26,19 @@ import {
   Calendar,
   Hash,
   AlertCircle,
+  CheckCircle2,
+  Eye,
 } from "lucide-react";
 
 async function getSignedUrl(bucket: string, path?: string | null) {
   if (!path) return null;
+
+  // Handle Google Drive links
+  if (path.startsWith("gdrive:")) {
+    const fileId = path.replace("gdrive:", "");
+    return getDrivePreviewUrl(fileId);
+  }
+
   const admin = createAdminClient();
   const { data } = await admin.storage.from(bucket).createSignedUrl(path, 3600);
   return data?.signedUrl || null;
@@ -77,10 +88,22 @@ export default async function AdminRequestDetailPage({
     })),
   );
 
-  const generatedDoc = request.generated_documents?.[0];
-  const generatedUrl = generatedDoc
-    ? await getSignedUrl("generated-documents", generatedDoc.file_path)
-    : null;
+  // Find the manually-uploaded Google Drive document (file_path starts with 'gdrive:')
+  const rawGeneratedDocs = request.generated_documents;
+  const allGeneratedDocs: any[] = Array.isArray(rawGeneratedDocs)
+    ? rawGeneratedDocs
+    : rawGeneratedDocs
+      ? [rawGeneratedDocs]
+      : [];
+  const generatedDoc =
+    allGeneratedDocs.find(
+      (d: any) =>
+        typeof d.file_path === "string" && d.file_path.startsWith("gdrive:"),
+    ) ?? null;
+
+  // Build the preview URL directly — no Supabase involved
+  const driveFileId = generatedDoc?.file_path?.replace("gdrive:", "") ?? null;
+  const generatedUrl = driveFileId ? getDrivePreviewUrl(driveFileId) : null;
   const signedUrlMap = new Map(docUrls.map((item) => [item.id, item.url]));
 
   return (
@@ -257,35 +280,46 @@ export default async function AdminRequestDetailPage({
 
           {/* Dokumen Hasil */}
           <Card title="Dokumen Hasil" icon={Download}>
-            <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 rounded-2xl border border-slate-200/80 p-5">
+            <div className="flex flex-col sm:flex-row items-start gap-4 bg-slate-50 rounded-2xl border border-slate-200/80 p-5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
                 <FileCheck className="h-6 w-6" />
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <h4 className="text-sm font-bold text-slate-800">
-                  PDF Hasil Layanan
+                  Berkas Hasil Layanan
                 </h4>
                 <p className="text-xs font-medium text-slate-500 mt-0.5">
                   Dokumen ini akan diterbitkan kepada pemohon.
                 </p>
+                {generatedDoc ? (
+                  <p className="mt-1.5 text-[11px] font-semibold text-slate-600 flex items-center gap-1.5">
+                    <FileCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    <span className="truncate max-w-[260px]">
+                      {generatedDoc.file_name}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-[11px] text-slate-400 italic">
+                    Belum ada berkas yang diunggah.
+                  </p>
+                )}
               </div>
-              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 w-full sm:w-auto">
-                <UploadResultButton requestId={request.id} />
-                {generatedDoc?.file_path === "EXPIRED" ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 border border-red-200 h-[38px]">
-                    <AlertCircle className="h-4 w-4" />
-                    Kadaluarsa
-                  </span>
-                ) : generatedUrl ? (
+              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 self-center sm:self-auto">
+                <UploadResultButton
+                  requestId={request.id}
+                  hasFile={!!generatedDoc}
+                />
+                {generatedUrl && (
                   <a
                     href={generatedUrl}
                     target="_blank"
-                    className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-all shadow-sm active:scale-95 h-[38px]"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 h-[38px]"
                   >
-                    <Download className="h-4 w-4" />
-                    Unduh
+                    <Eye className="h-4 w-4" />
+                    Lihat File
                   </a>
-                ) : null}
+                )}
               </div>
             </div>
           </Card>
@@ -343,6 +377,13 @@ export default async function AdminRequestDetailPage({
                 Simpan Keputusan
               </Button>
             </form>
+
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+                Zona Bahaya
+              </p>
+              <DeleteRequestButton requestId={request.id} />
+            </div>
           </Card>
 
           {/* Riwayat Review & Aktivitas (Combined Timeline) */}

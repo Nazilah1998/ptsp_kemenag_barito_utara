@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -17,6 +18,7 @@ import {
   Shield,
   Database,
   Settings2,
+  ChevronDown,
 } from "lucide-react";
 
 interface NavItem {
@@ -84,11 +86,20 @@ const GROUP_ICONS: Record<string, React.ElementType> = {
   Sistem: Settings2,
 };
 
-function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
+function NavLink({
+  item,
+  isActive,
+  onClick,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  onClick?: () => void;
+}) {
   const Icon = item.icon;
   return (
     <Link
       href={item.href}
+      onClick={onClick}
       className={`group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200 ${
         isActive
           ? "bg-gradient-to-r from-[#1f4bb7] to-[#2557c9] text-white shadow-md shadow-blue-500/20"
@@ -118,6 +129,7 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
 
 export function DashboardSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
   const navItems = isAdmin ? ADMIN_NAV : USER_NAV;
 
   const groups = isAdmin
@@ -125,11 +137,14 @@ export function DashboardSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
     : [""];
 
   return (
-    <aside className="flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pb-2">
+    <aside className="flex flex-col gap-3 md:sticky md:top-6 md:self-start md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pb-2">
       {/* Navigation */}
-      <nav className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-4 py-3">
+      <nav className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden flex flex-col transition-all">
+        {/* Header - Clickable on all devices to toggle menu */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex w-full items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-4 py-3 hover:bg-slate-50 transition-colors"
+        >
           <div className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#1f4bb7]/10">
               <Shield className="h-3.5 w-3.5 text-[#1f4bb7]" />
@@ -138,85 +153,83 @@ export function DashboardSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
               {isAdmin ? "Menu Admin" : "Menu Utama"}
             </p>
           </div>
-        </div>
+          <ChevronDown
+            className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
 
         {/* Nav items */}
-        <div className="p-2">
-          {isAdmin ? (
-            <div className="space-y-1">
-              {groups.map((group, gi) => {
-                const GroupIcon = GROUP_ICONS[group];
-                const groupItems = navItems.filter(
-                  (item) => (item.group || "") === group,
-                );
-                return (
-                  <div key={group} className={gi > 0 ? "pt-1" : ""}>
-                    {group && (
-                      <div className="mb-1 mt-2 first:mt-0 flex items-center gap-1.5 px-3">
-                        {GroupIcon && (
-                          <GroupIcon className="h-3 w-3 text-slate-400" />
-                        )}
-                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
-                          {group}
-                        </p>
+        <div
+          className={`overflow-hidden transition-all duration-300 ${
+            isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="p-2">
+            {isAdmin ? (
+              <div className="space-y-1">
+                {groups.map((group, gi) => {
+                  const GroupIcon = GROUP_ICONS[group];
+                  const groupItems = navItems.filter(
+                    (item) => (item.group || "") === group,
+                  );
+                  return (
+                    <div key={group} className={gi > 0 ? "pt-1" : ""}>
+                      {group && (
+                        <div className="mb-1 mt-2 first:mt-0 flex items-center gap-1.5 px-3">
+                          {GroupIcon && (
+                            <GroupIcon className="h-3 w-3 text-slate-400" />
+                          )}
+                          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+                            {group}
+                          </p>
+                        </div>
+                      )}
+                      <div className="space-y-0.5">
+                        {groupItems.map((item) => {
+                          const isActive =
+                            item.href === "/admin"
+                              ? pathname === item.href
+                              : pathname.startsWith(item.href);
+                          return (
+                            <NavLink
+                              key={item.href}
+                              item={item}
+                              isActive={isActive}
+                              onClick={() => setIsOpen(false)}
+                            />
+                          );
+                        })}
                       </div>
-                    )}
-                    <div className="space-y-0.5">
-                      {groupItems.map((item) => {
-                        const isActive =
-                          item.href === "/admin"
-                            ? pathname === item.href
-                            : pathname.startsWith(item.href);
-                        return (
-                          <NavLink
-                            key={item.href}
-                            item={item}
-                            isActive={isActive}
-                          />
-                        );
-                      })}
+                      {gi < groups.length - 1 && (
+                        <div className="mx-3 mt-2 border-t border-slate-100" />
+                      )}
                     </div>
-                    {gi < groups.length - 1 && (
-                      <div className="mx-3 mt-2 border-t border-slate-100" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="space-y-0.5">
-              {navItems.map((item) => {
-                const isActive =
-                  item.href === "/dashboard"
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href);
-                return (
-                  <NavLink key={item.href} item={item} isActive={isActive} />
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-0.5">
+                {navItems.map((item) => {
+                  const isActive =
+                    item.href === "/dashboard"
+                      ? pathname === item.href
+                      : pathname.startsWith(item.href);
+                  return (
+                    <NavLink
+                      key={item.href}
+                      item={item}
+                      isActive={isActive}
+                      onClick={() => setIsOpen(false)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </nav>
-
-      {/* Info card */}
-      <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-[#1f4bb7]/5 via-white to-slate-50/80 p-4 shadow-sm">
-        <div className="flex items-start gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#1f4bb7]/10">
-            <Shield className="h-3.5 w-3.5 text-[#1f4bb7]" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-slate-700 truncate">
-              {isAdmin ? "Panel Admin PTSP" : "Panel Pemohon PTSP"}
-            </p>
-            <p className="mt-0.5 text-[11px] text-slate-400 leading-relaxed">
-              {isAdmin
-                ? "Kelola seluruh fitur dan data layanan PTSP Kemenag."
-                : "Akses cepat untuk mengajukan dan melacak layanan."}
-            </p>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 }

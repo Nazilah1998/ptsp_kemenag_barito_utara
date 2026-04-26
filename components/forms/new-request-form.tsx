@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { parseJsonArray } from "@/lib/utils";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -51,18 +52,22 @@ export function NewRequestForm({ catalog }: { catalog: Catalog }) {
     const finalFormData = new FormData();
 
     const entries = Array.from(rawFormData.entries());
-    
+
     // Kompresi semua file gambar secara paralel
     await Promise.all(
       entries.map(async ([key, value]) => {
-        if (value instanceof File && value.size > 0 && value.type.startsWith("image/")) {
+        if (
+          value instanceof File &&
+          value.size > 0 &&
+          value.type.startsWith("image/")
+        ) {
           // Kompres file agar ukurannya diusahakan di bawah 100kb
           const compressedFile = await compressImageToUnder(value, 100);
           finalFormData.append(key, compressedFile);
         } else {
           finalFormData.append(key, value);
         }
-      })
+      }),
     );
 
     const response = await fetch("/api/requests", {
@@ -75,8 +80,16 @@ export function NewRequestForm({ catalog }: { catalog: Catalog }) {
 
     if (!response.ok) {
       setError(result.error || "Gagal membuat pengajuan.");
+      toast.error("Gagal", {
+        description:
+          result.error || "Terjadi kesalahan saat membuat pengajuan.",
+      });
       return;
     }
+
+    toast.success("Berhasil!", {
+      description: "Pengajuan Anda telah berhasil dikirim.",
+    });
 
     router.push(`/dashboard/pengajuan/${result.id}`);
     router.refresh();
