@@ -9,7 +9,7 @@ const LIMITS = {
   REQUESTS: { window: 60 * 1000, max: 3 }, // 3 submissions per 1 minute
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const ip =
     (request as any).ip ??
     request.headers.get("x-forwarded-for") ??
