@@ -9,6 +9,7 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   typedRoutes: false,
   experimental: {
+    turbopack: {},
     serverActions: {
       bodySizeLimit: "10mb",
     },
