@@ -9,7 +9,6 @@ Starter project Next.js untuk sistem PTSP Kemenag Barito Utara.
 - Tailwind CSS
 - Turbopack
 - Supabase Auth, Database, Storage
-- PDF generation dengan pdf-lib
 
 ## Cara menjalankan
 
@@ -86,12 +85,11 @@ Setelah itu login ulang. User tersebut akan masuk sebagai admin.
 - Upload dokumen
 - Workflow revisi, tolak, terima
 - Riwayat aktivitas
-- Generate PDF hasil layanan
 - Download dokumen hasil
 
 ## Catatan penting
 
-- Upload dan generate PDF memakai `SUPABASE_SERVICE_ROLE_KEY` di sisi server.
+- Upload dokumen memakai `SUPABASE_SERVICE_ROLE_KEY` di sisi server.
 - Route admin dicek dari role pada tabel `profiles`.
 - Middleware dipakai untuk refresh session Supabase berbasis cookie.
 - Semua query penting memakai validasi sisi server.
