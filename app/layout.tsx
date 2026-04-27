@@ -26,10 +26,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title:
-    "Pelayanan Terpadu Satu Pintu (PTSP) Kantor Kementerian Agama Kabupaten Barito Utara",
-  description:
-    "Portal resmi Pelayanan Terpadu Satu Pintu (PTSP) Kantor Kementerian Agama Kabupaten Barito Utara",
+  title: "Pelayanan Terpadu Satu Pintu (PTSP) - Kemenag Barito Utara",
+  description: "Portal resmi layanan administrasi keagamaan Kantor Kementerian Agama Kabupaten Barito Utara.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PTSP Kemenag",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: "/kemenag.svg",
     shortcut: "/kemenag.svg",

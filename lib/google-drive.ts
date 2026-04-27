@@ -117,19 +117,17 @@ export async function replaceDriveFile(
 export async function deleteFromDrive(fileId: string) {
   const drive = await getDriveClient();
   try {
-    console.log(`Trashing Google Drive file: ${fileId}`);
-    // Using update to trash is often more reliable than permanent delete in API v3
-    await drive.files.update({
+    console.log(`Deleting Google Drive file permanently: ${fileId}`);
+    await drive.files.delete({
       fileId,
-      requestBody: { trashed: true },
     });
-    console.log(`Successfully trashed file from Google Drive: ${fileId}`);
+    console.log(`Successfully deleted file from Google Drive: ${fileId}`);
   } catch (error: any) {
     if (error.code === 404) {
       console.warn(`File ${fileId} not found on Google Drive, skipping.`);
       return;
     }
-    console.error("Error trashing file from Google Drive:", error);
+    console.error("Error deleting file from Google Drive:", error);
     throw error;
   }
 }
