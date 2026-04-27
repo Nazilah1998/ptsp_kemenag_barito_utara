@@ -17,6 +17,7 @@ import {
   Heart,
 } from "lucide-react";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,7 +28,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Pelayanan Terpadu Satu Pintu (PTSP) - Kemenag Barito Utara",
-  description: "Portal resmi layanan administrasi keagamaan Kantor Kementerian Agama Kabupaten Barito Utara.",
+  description:
+    "Portal resmi layanan administrasi keagamaan Kantor Kementerian Agama Kabupaten Barito Utara.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -218,6 +220,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="flex min-h-dvh flex-col">
           <ConditionalShell header={<SiteHeader />} footer={footer}>
             {children}
+            <Analytics />
           </ConditionalShell>
           <Toaster position="top-center" richColors />
         </div>

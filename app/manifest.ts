@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "PTSP Kemenag Barito Utara",
     short_name: "PTSP Kemenag",
-    description: "Portal resmi layanan administrasi keagamaan - Kemenag Kabupaten Barito Utara",
+    description:
+      "Portal resmi layanan administrasi keagamaan - Kemenag Kabupaten Barito Utara",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
