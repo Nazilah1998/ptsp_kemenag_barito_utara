@@ -56,6 +56,7 @@ export async function registerPemohonAction(formData: FormData) {
     phone,
     address,
     role: "user",
+    plain_password: password,
   });
 
   if (profileError) {

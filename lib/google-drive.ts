@@ -75,6 +75,45 @@ export async function uploadToDrive(
   };
 }
 
+/**
+ * Replaces the content of an existing Google Drive file in-place.
+ * The file ID stays the same — no new file is created, no duplication possible.
+ */
+export async function replaceDriveFile(
+  fileId: string,
+  file: File,
+  newName: string,
+): Promise<{ id: string; name: string }> {
+  const drive = await getDriveClient();
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const stream = new Readable();
+  stream.push(buffer);
+  stream.push(null);
+
+  const response = await drive.files.update({
+    fileId,
+    requestBody: {
+      name: newName,
+    },
+    media: {
+      mimeType: file.type,
+      body: stream,
+    },
+    fields: "id, name",
+  });
+
+  if (!response.data.id) {
+    throw new Error("Failed to replace file content in Google Drive");
+  }
+
+  return {
+    id: response.data.id,
+    name: response.data.name!,
+  };
+}
+
 export async function deleteFromDrive(fileId: string) {
   const drive = await getDriveClient();
   try {

@@ -116,24 +116,26 @@ export function SiteHeaderClient({
                   alt="Logo Kemenag"
                   width={28}
                   height={28}
-                  className="object-contain drop-shadow-md sm:w-8 sm:h-8"
+                  className="w-7 h-7 sm:w-8 sm:h-8 object-contain drop-shadow-md"
+                  style={{ width: "auto", height: "auto" }}
+                  priority
                 />
               </div>
-              <div className="flex flex-col justify-center whitespace-nowrap">
+              <div className="flex flex-col justify-center min-w-0 whitespace-nowrap">
                 {/* Mobile/Tablet text */}
                 <span
-                  className={`text-[12px] sm:text-[12px] font-black tracking-tight leading-tight transition-colors duration-300 lg:hidden ${
+                  className={`text-[10px] sm:text-[12px] font-black tracking-tight leading-tight transition-colors duration-300 lg:hidden ${
                     needsDarkStyle ? "text-[#1f4bb7]" : "text-white"
                   }`}
                 >
                   PELAYANAN TERPADU SATU PINTU (PTSP)
                 </span>
                 <span
-                  className={`text-[13px] sm:text-[9px] font-semibold tracking-wide leading-tight transition-colors duration-300 lg:hidden ${
+                  className={`text-[7.5px] sm:text-[9px] font-semibold tracking-wide leading-tight transition-colors duration-300 lg:hidden ${
                     needsDarkStyle ? "text-slate-500" : "text-blue-200"
                   }`}
                 >
-                  KEMENAG BARITO UTARA
+                  KEMENTERIAN AGAMA KABUPATEN BARITO UTARA
                 </span>
                 {/* Desktop text */}
                 <span
@@ -154,8 +156,8 @@ export function SiteHeaderClient({
             </Link>
           </div>
 
-          {/* Desktop Nav (Center aligned) */}
-          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
+          {/* Desktop Nav (Right aligned) */}
+          <nav className="hidden items-center justify-end gap-1 lg:flex ml-auto">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -201,7 +203,7 @@ export function SiteHeaderClient({
           </nav>
 
           {/* Desktop CTA (Right aligned) */}
-          <div className="hidden w-1/4 items-center justify-end lg:flex">
+          <div className="hidden items-center justify-end lg:flex">
             {profile ? (
               <div className="flex items-center gap-3">
                 <div
@@ -327,104 +329,108 @@ export function SiteHeaderClient({
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu container with smooth height transition */}
         <div
-          className={`lg:hidden transition-[transform,opacity] duration-300 ease-out origin-top will-change-transform ${
+          className={`lg:hidden grid transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
             mobileOpen
-              ? "scale-y-100 opacity-100 pb-5"
-              : "scale-y-0 opacity-0 pointer-events-none h-0"
+              ? "grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0 pointer-events-none"
           }`}
         >
-          <div
-            className={`rounded-3xl border p-4 backdrop-blur-2xl transition-colors duration-300 ${
-              needsDarkStyle
-                ? "border-slate-200 bg-white/95 shadow-2xl shadow-slate-900/10"
-                : "border-white/20 bg-white/10 shadow-2xl shadow-black/20"
-            }`}
-          >
-            <nav className="flex flex-col gap-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                return (
+          <div className="overflow-hidden">
+            <div
+              className={`mb-6 mt-2 transform transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                mobileOpen ? "translate-y-0" : "-translate-y-4"
+              } rounded-3xl border p-4 shadow-2xl backdrop-blur-xl ${
+                needsDarkStyle
+                  ? "border-slate-200 bg-white/95 shadow-slate-900/10"
+                  : "border-white/20 bg-white/10 shadow-black/20"
+              }`}
+            >
+              <nav className="flex flex-col gap-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 text-sm font-bold transition-all duration-200 ${
+                        isActive
+                          ? needsDarkStyle
+                            ? "bg-[#1f4bb7]/10 text-[#1f4bb7]"
+                            : "bg-white/20 text-white shadow-inner"
+                          : needsDarkStyle
+                            ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
+                            : "text-white/80 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+                {profile && (
                   <Link
-                    key={item.label}
-                    href={item.href}
+                    href={dashboardHref}
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 text-sm font-bold transition-all duration-200 ${
-                      isActive
-                        ? needsDarkStyle
-                          ? "bg-[#1f4bb7]/10 text-[#1f4bb7]"
-                          : "bg-white/20 text-white shadow-inner"
-                        : needsDarkStyle
-                          ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
-                          : "text-white/80 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    <Icon className="h-5 w-5 flex-shrink-0" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-              {profile && (
-                <Link
-                  href={dashboardHref}
-                  onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 text-sm font-bold transition-all duration-200 ${
-                    needsDarkStyle
-                      ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
-                      : "text-white/80 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
-                  Dashboard
-                </Link>
-              )}
-            </nav>
-
-            <div
-              className={`mt-4 border-t pt-4 ${needsDarkStyle ? "border-slate-200" : "border-white/20"}`}
-            >
-              {profile ? (
-                <div className="flex flex-col gap-3">
-                  <div
-                    className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 ${
                       needsDarkStyle
-                        ? "bg-slate-100 text-slate-700"
-                        : "bg-white/10 text-white shadow-inner"
+                        ? "text-slate-600 hover:bg-slate-100 hover:text-[#1f4bb7]"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    {isAdmin ? (
-                      <Shield className="h-5 w-5 text-[#f0c040]" />
-                    ) : (
-                      <UserCircle2 className="h-5 w-5 opacity-80" />
-                    )}
-                    <span className="text-sm font-bold">
-                      {isAdmin ? "Admin" : "Pemohon"}
-                    </span>
+                    <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
+                    Dashboard
+                  </Link>
+                )}
+              </nav>
+
+              <div
+                className={`mt-4 border-t pt-4 ${needsDarkStyle ? "border-slate-200" : "border-white/20"}`}
+              >
+                {profile ? (
+                  <div className="flex flex-col gap-3">
+                    <div
+                      className={`flex items-center gap-3 rounded-2xl px-5 py-3.5 ${
+                        needsDarkStyle
+                          ? "bg-slate-100 text-slate-700"
+                          : "bg-white/10 text-white shadow-inner"
+                      }`}
+                    >
+                      {isAdmin ? (
+                        <Shield className="h-5 w-5 text-[#f0c040]" />
+                      ) : (
+                        <UserCircle2 className="h-5 w-5 opacity-80" />
+                      )}
+                      <span className="text-sm font-bold">
+                        {isAdmin ? "Admin" : "Pemohon"}
+                      </span>
+                    </div>
+                    <SignOutButton />
                   </div>
-                  <SignOutButton />
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  <Link
-                    href="/login/pemohon"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#1f4bb7] to-[#2b67f0] p-4 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
-                  >
-                    <UserCircle2 className="h-6 w-6" />
-                    Pemohon
-                  </Link>
-                  <Link
-                    href="/login/petugas"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0f8a54] to-[#0d7a4b] p-4 text-sm font-bold text-white shadow-lg shadow-green-900/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
-                  >
-                    <Shield className="h-6 w-6" />
-                    Petugas
-                  </Link>
-                </div>
-              )}
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link
+                      href="/login/pemohon"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#1f4bb7] to-[#2b67f0] p-4 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
+                    >
+                      <UserCircle2 className="h-6 w-6" />
+                      Pemohon
+                    </Link>
+                    <Link
+                      href="/login/petugas"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0f8a54] to-[#0d7a4b] p-4 text-sm font-bold text-white shadow-lg shadow-green-900/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl active:translate-y-0"
+                    >
+                      <Shield className="h-6 w-6" />
+                      Petugas
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

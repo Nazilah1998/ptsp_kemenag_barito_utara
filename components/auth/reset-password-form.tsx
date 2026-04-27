@@ -1,29 +1,42 @@
-'use client';
+"use client";
 
-import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { Field } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function ResetPasswordForm() {
   const router = useRouter();
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const password = String(formData.get('password') || '');
+    const password = String(formData.get("password") || "");
 
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
+
+    if (!error) {
+      // Update juga plain_password di tabel profiles agar Super Admin bisa lihat
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ plain_password: password })
+          .eq("id", user.id);
+      }
+    }
 
     setLoading(false);
 
@@ -32,8 +45,8 @@ export function ResetPasswordForm() {
       return;
     }
 
-    setMessage('Password berhasil diperbarui.');
-    router.push('/login');
+    setMessage("Password berhasil diperbarui.");
+    router.push("/login");
   };
 
   return (
@@ -44,7 +57,7 @@ export function ResetPasswordForm() {
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
       {message ? <p className="text-sm text-green-700">{message}</p> : null}
       <Button className="w-full" disabled={loading}>
-        {loading ? 'Menyimpan...' : 'Simpan Password'}
+        {loading ? "Menyimpan..." : "Simpan Password"}
       </Button>
     </form>
   );

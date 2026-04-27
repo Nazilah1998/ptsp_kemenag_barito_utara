@@ -1,11 +1,40 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Users, Shield, Crown, UserCheck, Pencil, Inbox, Check, X, Loader2, ChevronLeft, ChevronRight, Search, Eye, EyeOff, Building2, Phone, Clock, CheckCircle2, XCircle, KeyRound } from "lucide-react";
+import {
+  Users,
+  Shield,
+  Crown,
+  UserCheck,
+  Pencil,
+  Inbox,
+  Check,
+  X,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Eye,
+  EyeOff,
+  Building2,
+  Phone,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  KeyRound,
+  Trash2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { updateUserRoleAction } from "@/lib/actions/admin";
-import { verifyPetugasAction, rejectPetugasAction, updatePetugasAction } from "@/lib/actions/register-petugas";
+import {
+  updateUserRoleAction,
+  deleteUserPermanentlyAction,
+} from "@/lib/actions/admin";
+import {
+  verifyPetugasAction,
+  rejectPetugasAction,
+  updatePetugasAction,
+} from "@/lib/actions/register-petugas";
 import { formatDate } from "@/lib/utils";
 import { isSuperAdmin, isAdminRole } from "@/lib/constants";
 import { UserPermissionsModal } from "./user-permissions-manager";
@@ -53,10 +82,19 @@ function RoleBadge({ role, email }: { role: string; email?: string }) {
 }
 
 /* ─── Password Cell (reusable) ─────────────────────────────────── */
-function PasswordCell({ password, canView }: { password?: string; canView: boolean }) {
+function PasswordCell({
+  password,
+  canView,
+}: {
+  password?: string;
+  canView: boolean;
+}) {
   const [visible, setVisible] = useState(false);
   if (!canView) return <span className="text-slate-300 text-xs italic">—</span>;
-  if (!password) return <span className="text-slate-400 text-xs italic">Tidak tersedia</span>;
+  if (!password)
+    return (
+      <span className="text-slate-400 text-xs italic">Tidak tersedia</span>
+    );
   return (
     <div className="flex items-center gap-1.5">
       <span className="text-sm text-slate-700 font-mono tabular-nums tracking-wide select-all">
@@ -64,58 +102,77 @@ function PasswordCell({ password, canView }: { password?: string; canView: boole
       </span>
       <button
         type="button"
-        onClick={() => setVisible(v => !v)}
+        onClick={() => setVisible((v) => !v)}
         className="p-1 rounded-md text-slate-400 hover:text-[#1f4bb7] hover:bg-blue-50 transition-colors"
         title={visible ? "Sembunyikan" : "Tampilkan"}
       >
-        {visible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+        {visible ? (
+          <EyeOff className="h-3.5 w-3.5" />
+        ) : (
+          <Eye className="h-3.5 w-3.5" />
+        )}
       </button>
     </div>
   );
 }
 
-function UserTable({ 
-  users, 
-  title, 
-  subtitle, 
-  icon: Icon, 
-  iconColor, 
+function UserTable({
+  users,
+  title,
+  subtitle,
+  icon: Icon,
+  iconColor,
   emptyText,
   showRoleChange,
   viewerIsSuperAdmin,
   onUserUpdated,
   onOpenPermissions,
-  perPage = 10 
-}: { 
-  users: any[]; 
-  title: string; 
-  subtitle: string; 
-  icon: React.ElementType; 
-  iconColor: string; 
+  onUserDeleted,
+  perPage = 10,
+}: {
+  users: any[];
+  title: string;
+  subtitle: string;
+  icon: React.ElementType;
+  iconColor: string;
   emptyText: string;
   showRoleChange: boolean;
   viewerIsSuperAdmin: boolean;
   onUserUpdated?: (userId: string, data: Record<string, any>) => void;
   onOpenPermissions?: (user: any) => void;
+  onUserDeleted?: (userId: string) => void;
   perPage?: number;
 }) {
   const PER_PAGE = perPage;
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [editingUser, setEditingUser] = useState<any | null>(null);
-  const [editForm, setEditForm] = useState({ email: "", phone: "", unit_kerja: "", role: "", newPassword: "" });
+  const [deletingUser, setDeletingUser] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState({
+    email: "",
+    phone: "",
+    unit_kerja: "",
+    role: "",
+    newPassword: "",
+  });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = searchQuery
-    ? users.filter(u =>
-        (u.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (u.email || "").toLowerCase().includes(searchQuery.toLowerCase())
+    ? users.filter(
+        (u) =>
+          (u.full_name || "")
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          (u.email || "").toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : users;
 
   const totalPages = Math.ceil(filteredUsers.length / PER_PAGE);
-  const paginatedUsers = filteredUsers.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const paginatedUsers = filteredUsers.slice(
+    (page - 1) * PER_PAGE,
+    page * PER_PAGE,
+  );
 
   // Reset page when search changes
   const handleSearch = (q: string) => {
@@ -168,7 +225,9 @@ function UserTable({
             phone: editForm.phone,
             unit_kerja: editForm.unit_kerja,
             role: editForm.role,
-            ...(editForm.newPassword ? { plain_password: editForm.newPassword } : {}),
+            ...(editForm.newPassword
+              ? { plain_password: editForm.newPassword }
+              : {}),
           });
           setEditingUser(null);
         }
@@ -178,12 +237,32 @@ function UserTable({
     });
   };
 
+  const confirmDelete = () => {
+    if (!deletingUser) return;
+    startTransition(async () => {
+      try {
+        const result = await deleteUserPermanentlyAction(deletingUser.id);
+        if (result.success) {
+          toast.success("Akun Berhasil Dihapus", {
+            description: `Petugas ${deletingUser.full_name || deletingUser.email} telah dihapus permanen.`,
+          });
+          onUserDeleted?.(deletingUser.id);
+          setDeletingUser(null);
+        }
+      } catch (err: any) {
+        toast.error("Gagal menghapus akun", { description: err.message });
+      }
+    });
+  };
+
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
       {/* Header */}
       <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white px-5 py-4 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconColor}`}>
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconColor}`}
+          >
             <Icon className="h-5 w-5" />
           </div>
           <div>
@@ -215,16 +294,30 @@ function UserTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200/60 bg-slate-50/50">
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-12">#</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400">Nama Lengkap</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-40">No Telepon / WA</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400">Unit Kerja</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-36">Role Petugas</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-12">
+                #
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Nama Lengkap
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-40">
+                No Telepon / WA
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Unit Kerja
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-36">
+                Role Petugas
+              </th>
               {viewerIsSuperAdmin && (
-                <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-40">Password</th>
+                <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-40">
+                  Password
+                </th>
               )}
               {showRoleChange && (
-                <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wider text-slate-400 w-28">Aksi</th>
+                <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wider text-slate-400 w-28">
+                  Aksi
+                </th>
               )}
             </tr>
           </thead>
@@ -246,16 +339,24 @@ function UserTable({
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm select-none ${
-                          isSuper
-                            ? "bg-gradient-to-br from-amber-400 to-yellow-500 text-white shadow-sm shadow-amber-200"
-                            : "bg-gradient-to-br from-[#1f4bb7]/10 to-[#2d5bcf]/20 text-[#1f4bb7]"
-                        }`}>
-                          {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+                        <div
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-bold text-sm select-none ${
+                            isSuper
+                              ? "bg-gradient-to-br from-amber-400 to-yellow-500 text-white shadow-sm shadow-amber-200"
+                              : "bg-gradient-to-br from-[#1f4bb7]/10 to-[#2d5bcf]/20 text-[#1f4bb7]"
+                          }`}
+                        >
+                          {(user.full_name || user.email || "U")
+                            .charAt(0)
+                            .toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold text-slate-900">
-                            {user.full_name || <span className="italic text-slate-400">Tanpa nama</span>}
+                            {user.full_name || (
+                              <span className="italic text-slate-400">
+                                Tanpa nama
+                              </span>
+                            )}
                           </p>
                           {isSuper && (
                             <p className="text-[10px] font-bold text-amber-600 flex items-center gap-1 mt-0.5">
@@ -268,7 +369,11 @@ function UserTable({
                     <td className="px-5 py-3.5">
                       <span className="inline-flex items-center gap-1.5 text-sm text-slate-700 font-medium tabular-nums">
                         <Phone className="h-3.5 w-3.5 text-slate-400" />
-                        {user.phone || <span className="text-slate-400 italic text-xs">—</span>}
+                        {user.phone || (
+                          <span className="text-slate-400 italic text-xs">
+                            —
+                          </span>
+                        )}
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
@@ -278,7 +383,9 @@ function UserTable({
                           {user.unit_kerja}
                         </span>
                       ) : (
-                        <span className="text-slate-400 italic text-xs">Belum diisi</span>
+                        <span className="text-slate-400 italic text-xs">
+                          Belum diisi
+                        </span>
                       )}
                     </td>
                     <td className="px-5 py-3.5">
@@ -286,26 +393,28 @@ function UserTable({
                     </td>
                     {viewerIsSuperAdmin && (
                       <td className="px-5 py-3.5">
-                        <PasswordCell password={user.plain_password} canView={viewerIsSuperAdmin} />
+                        <PasswordCell
+                          password={user.plain_password}
+                          canView={viewerIsSuperAdmin}
+                        />
                       </td>
                     )}
                     {showRoleChange && (
                       <td className="px-5 py-3.5">
                         <div className="flex justify-end gap-2">
                           {isSuper ? (
-                            <span className="text-[10px] font-semibold text-slate-400 italic">Terkunci</span>
+                            <span className="text-[10px] font-semibold text-slate-400 italic">
+                              Terkunci
+                            </span>
                           ) : (
                             <>
-                              {viewerIsSuperAdmin && onOpenPermissions && (
-                                <button
-                                  onClick={() => onOpenPermissions(user)}
-                                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 hover:bg-amber-100 hover:border-amber-300 transition-all duration-200 shadow-sm"
-                                  title="Atur Hak Akses Menu"
-                                >
-                                  <KeyRound className="h-3 w-3" />
-                                  Akses
-                                </button>
-                              )}
+                              <button
+                                onClick={() => onOpenPermissions?.(user)}
+                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 hover:bg-amber-100 transition-all duration-200 shadow-sm"
+                              >
+                                <KeyRound className="h-3 w-3" />
+                                Akses
+                              </button>
                               <button
                                 onClick={() => openEditModal(user)}
                                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200/80 hover:bg-blue-50 hover:text-[#1f4bb7] hover:border-blue-200 transition-all duration-200 shadow-sm"
@@ -313,6 +422,15 @@ function UserTable({
                                 <Pencil className="h-3 w-3" />
                                 Edit Data
                               </button>
+                              {!isSuper && (
+                                <button
+                                  onClick={() => setDeletingUser(user)}
+                                  className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-red-500 bg-red-50 border border-red-100 hover:bg-red-100 transition-all duration-200 shadow-sm"
+                                  title="Hapus Akun"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              )}
                             </>
                           )}
                         </div>
@@ -324,15 +442,30 @@ function UserTable({
             </AnimatePresence>
             {!paginatedUsers.length && (
               <tr>
-                <td colSpan={viewerIsSuperAdmin ? (showRoleChange ? 8 : 7) : (showRoleChange ? 7 : 6)} className="px-5 py-16 text-center">
+                <td
+                  colSpan={
+                    viewerIsSuperAdmin
+                      ? showRoleChange
+                        ? 8
+                        : 7
+                      : showRoleChange
+                        ? 7
+                        : 6
+                  }
+                  className="px-5 py-16 text-center"
+                >
                   <div className="flex flex-col items-center gap-3">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50">
                       <Inbox className="h-7 w-7 text-slate-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-500">{emptyText}</p>
+                      <p className="text-sm font-bold text-slate-500">
+                        {emptyText}
+                      </p>
                       {searchQuery && (
-                        <p className="mt-1 text-xs text-slate-400">Coba ubah kata kunci pencarian.</p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Coba ubah kata kunci pencarian.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -347,18 +480,18 @@ function UserTable({
       {totalPages > 1 && (
         <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-3 flex items-center justify-between">
           <p className="text-[11px] text-slate-500">
-            Halaman <span className="font-bold text-slate-700">{page}</span> dari{" "}
-            <span className="font-bold text-slate-700">{totalPages}</span>
+            Halaman <span className="font-bold text-slate-700">{page}</span>{" "}
+            dari <span className="font-bold text-slate-700">{totalPages}</span>
           </p>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
                 key={p}
                 onClick={() => setPage(p)}
@@ -372,7 +505,7 @@ function UserTable({
               </button>
             ))}
             <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
@@ -382,17 +515,82 @@ function UserTable({
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deletingUser && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50"
+              onClick={() => !isPending && setDeletingUser(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-3xl shadow-2xl z-50 overflow-hidden"
+            >
+              <div className="p-8 text-center">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-600 mb-6 ring-8 ring-red-50/50">
+                  <Trash2 className="h-10 w-10" />
+                </div>
+
+                <h3 className="text-xl font-black text-slate-900 mb-2">
+                  Hapus Akun Petugas?
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                  Tindakan ini permanen. Seluruh data profil dan riwayat
+                  aktivitas{" "}
+                  <span className="font-bold text-slate-900">
+                    {deletingUser.full_name || deletingUser.email}
+                  </span>{" "}
+                  akan dihapus.
+                </p>
+
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={confirmDelete}
+                    disabled={isPending}
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {isPending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Check className="h-5 w-5" />
+                    )}
+                    Ya, Hapus Permanen
+                  </button>
+                  <button
+                    onClick={() => setDeletingUser(null)}
+                    disabled={isPending}
+                    className="w-full py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition-all active:scale-[0.98]"
+                  >
+                    Batalkan
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Edit Data Petugas Modal */}
       <AnimatePresence>
         {editingUser && (
           <>
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50"
               onClick={() => setEditingUser(null)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-3xl shadow-2xl z-50 overflow-hidden max-h-[90vh] overflow-y-auto"
             >
               {/* Header */}
@@ -401,7 +599,9 @@ function UserTable({
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1f4bb7]/10 text-[#1f4bb7]">
                     <Pencil className="h-4 w-4" />
                   </div>
-                  <h3 className="text-lg font-black text-slate-800">Edit Data Petugas</h3>
+                  <h3 className="text-lg font-black text-slate-800">
+                    Edit Data Petugas
+                  </h3>
                 </div>
                 <button
                   onClick={() => setEditingUser(null)}
@@ -415,11 +615,17 @@ function UserTable({
                 {/* User Info Card */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1f4bb7]/10 to-[#2d5bcf]/20 text-[#1f4bb7] font-bold text-sm">
-                    {(editingUser.full_name || editingUser.email || "U").charAt(0).toUpperCase()}
+                    {(editingUser.full_name || editingUser.email || "U")
+                      .charAt(0)
+                      .toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-900 truncate">{editingUser.full_name || "Tanpa Nama"}</p>
-                    <p className="text-xs text-slate-500 truncate">{editingUser.email}</p>
+                    <p className="font-bold text-slate-900 truncate">
+                      {editingUser.full_name || "Tanpa Nama"}
+                    </p>
+                    <p className="text-xs text-slate-500 truncate">
+                      {editingUser.email}
+                    </p>
                   </div>
                 </div>
 
@@ -431,7 +637,12 @@ function UserTable({
                   <input
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
                     placeholder="email@contoh.com"
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 transition-all focus:border-[#1f4bb7] focus:ring-2 focus:ring-[#1f4bb7]/10 outline-none placeholder:text-slate-400"
                   />
@@ -445,7 +656,12 @@ function UserTable({
                   <input
                     type="text"
                     value={editForm.phone}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                     placeholder="08xxxxxxxxxx"
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 transition-all focus:border-[#1f4bb7] focus:ring-2 focus:ring-[#1f4bb7]/10 outline-none placeholder:text-slate-400"
                   />
@@ -458,12 +674,29 @@ function UserTable({
                   </label>
                   <select
                     value={editForm.unit_kerja}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, unit_kerja: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        unit_kerja: e.target.value,
+                      }))
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 transition-all focus:border-[#1f4bb7] focus:ring-2 focus:ring-[#1f4bb7]/10 outline-none appearance-none cursor-pointer"
                   >
                     <option value="">Pilih Unit Kerja</option>
-                    {["Kepala Kantor", "Sub Bagian Tata Usaha", "Seksi Pendidikan Madrasah", "Seksi Pendidikan Agama Islam", "Seksi Pendidikan Diniyah & Pondok Pesantren", "Seksi Bimbingan Masyarakat Islam", "Seksi Bimbingan Masyarakat Kristen & Katolik", "Penyelenggara Zakat dan Wakaf", "Penyelenggara Hindu"].map(uk => (
-                      <option key={uk} value={uk}>{uk}</option>
+                    {[
+                      "Kepala Kantor",
+                      "Sub Bagian Tata Usaha",
+                      "Seksi Pendidikan Madrasah",
+                      "Seksi Pendidikan Agama Islam",
+                      "Seksi Pendidikan Diniyah & Pondok Pesantren",
+                      "Seksi Bimbingan Masyarakat Islam",
+                      "Seksi Bimbingan Masyarakat Kristen & Katolik",
+                      "Penyelenggara Zakat dan Wakaf",
+                      "Penyelenggara Hindu",
+                    ].map((uk) => (
+                      <option key={uk} value={uk}>
+                        {uk}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -475,33 +708,78 @@ function UserTable({
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { value: "admin_ptsp", label: "Admin PTSP", icon: Shield, color: "blue" },
-                      { value: "kasubag_tu", label: "Kasubag TU", icon: Shield, color: "purple" },
-                      { value: "kepala_kantor", label: "Kepala Kantor", icon: Crown, color: "emerald" },
+                      {
+                        value: "admin_ptsp",
+                        label: "Admin PTSP",
+                        icon: Shield,
+                        color: "blue",
+                      },
+                      {
+                        value: "kasubag_tu",
+                        label: "Kasubag TU",
+                        icon: Shield,
+                        color: "purple",
+                      },
+                      {
+                        value: "kepala_kantor",
+                        label: "Kepala Kantor",
+                        icon: Crown,
+                        color: "emerald",
+                      },
                     ].map((r) => {
                       const RIcon = r.icon;
                       const isSelected = editForm.role === r.value;
-                      const colorMap: Record<string, { active: string; icon: string; text: string }> = {
-                        blue: { active: "border-[#1f4bb7] bg-blue-50/70 shadow-blue-100", icon: "bg-blue-100 text-[#1f4bb7]", text: "text-[#1f4bb7]" },
-                        purple: { active: "border-purple-500 bg-purple-50/70 shadow-purple-100", icon: "bg-purple-100 text-purple-600", text: "text-purple-700" },
-                        emerald: { active: "border-emerald-500 bg-emerald-50/70 shadow-emerald-100", icon: "bg-emerald-100 text-emerald-600", text: "text-emerald-700" },
+                      const colorMap: Record<
+                        string,
+                        { active: string; icon: string; text: string }
+                      > = {
+                        blue: {
+                          active:
+                            "border-[#1f4bb7] bg-blue-50/70 shadow-blue-100",
+                          icon: "bg-blue-100 text-[#1f4bb7]",
+                          text: "text-[#1f4bb7]",
+                        },
+                        purple: {
+                          active:
+                            "border-purple-500 bg-purple-50/70 shadow-purple-100",
+                          icon: "bg-purple-100 text-purple-600",
+                          text: "text-purple-700",
+                        },
+                        emerald: {
+                          active:
+                            "border-emerald-500 bg-emerald-50/70 shadow-emerald-100",
+                          icon: "bg-emerald-100 text-emerald-600",
+                          text: "text-emerald-700",
+                        },
                       };
                       const c = colorMap[r.color];
                       return (
                         <button
                           key={r.value}
                           type="button"
-                          onClick={() => setEditForm(prev => ({ ...prev, role: r.value }))}
+                          onClick={() =>
+                            setEditForm((prev) => ({ ...prev, role: r.value }))
+                          }
                           className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 text-center ${
-                            isSelected ? `${c.active} shadow-sm` : "border-slate-200 hover:border-slate-300 bg-white"
+                            isSelected
+                              ? `${c.active} shadow-sm`
+                              : "border-slate-200 hover:border-slate-300 bg-white"
                           }`}
                         >
-                          <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                            isSelected ? c.icon : "bg-slate-100 text-slate-400"
-                          }`}>
+                          <div
+                            className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                              isSelected
+                                ? c.icon
+                                : "bg-slate-100 text-slate-400"
+                            }`}
+                          >
                             <RIcon className="h-4 w-4" />
                           </div>
-                          <p className={`text-[11px] font-bold leading-tight ${isSelected ? c.text : "text-slate-600"}`}>{r.label}</p>
+                          <p
+                            className={`text-[11px] font-bold leading-tight ${isSelected ? c.text : "text-slate-600"}`}
+                          >
+                            {r.label}
+                          </p>
                         </button>
                       );
                     })}
@@ -517,21 +795,32 @@ function UserTable({
                     <input
                       type={showNewPassword ? "text" : "password"}
                       value={editForm.newPassword}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          newPassword: e.target.value,
+                        }))
+                      }
                       placeholder="Kosongkan jika tidak ingin mengubah"
                       autoComplete="new-password"
                       className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 pr-10 text-sm text-slate-700 transition-all focus:border-[#1f4bb7] focus:ring-2 focus:ring-[#1f4bb7]/10 outline-none placeholder:text-slate-400"
                     />
                     <button
                       type="button"
-                      onClick={() => setShowNewPassword(v => !v)}
+                      onClick={() => setShowNewPassword((v) => !v)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-[#1f4bb7] hover:bg-blue-50 transition-colors"
                     >
-                      {showNewPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                      {showNewPassword ? (
+                        <EyeOff className="h-3.5 w-3.5" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5" />
+                      )}
                     </button>
                   </div>
                   {editForm.newPassword && editForm.newPassword.length < 8 && (
-                    <p className="text-[11px] text-red-500 font-medium">Password minimal 8 karakter</p>
+                    <p className="text-[11px] text-red-500 font-medium">
+                      Password minimal 8 karakter
+                    </p>
                   )}
                 </div>
 
@@ -546,10 +835,18 @@ function UserTable({
                   </button>
                   <button
                     onClick={handleSaveEdit}
-                    disabled={isPending || (editForm.newPassword !== "" && editForm.newPassword.length < 8)}
+                    disabled={
+                      isPending ||
+                      (editForm.newPassword !== "" &&
+                        editForm.newPassword.length < 8)
+                    }
                     className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#1f4bb7] to-[#2557c9] hover:shadow-md hover:shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                    {isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
                     Simpan Perubahan
                   </button>
                 </div>
@@ -563,9 +860,19 @@ function UserTable({
 }
 
 /* ─── Pending Verification Card ────────────────────────────────── */
-function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (id: string) => void; onReject: (id: string) => void }) {
+function PendingUserCard({
+  user,
+  onVerify,
+  onReject,
+}: {
+  user: any;
+  onVerify: (id: string) => void;
+  onReject: (id: string) => void;
+}) {
   const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<"approve" | "reject" | null>(null);
+  const [confirmAction, setConfirmAction] = useState<
+    "approve" | "reject" | null
+  >(null);
 
   const handleAction = (action: "approve" | "reject") => {
     startTransition(async () => {
@@ -605,7 +912,9 @@ function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (i
             {(user.full_name || user.email || "?").charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-bold text-slate-900 truncate">{user.full_name || "Tanpa Nama"}</p>
+            <p className="font-bold text-slate-900 truncate">
+              {user.full_name || "Tanpa Nama"}
+            </p>
             <p className="text-xs text-slate-500 truncate">{user.email}</p>
           </div>
         </div>
@@ -619,7 +928,8 @@ function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (i
           )}
           {user.unit_kerja && (
             <span className="inline-flex items-center gap-1 rounded-lg px-2 py-1 bg-white border border-orange-200 text-slate-600">
-              <Building2 className="h-3 w-3 text-orange-400" /> {user.unit_kerja}
+              <Building2 className="h-3 w-3 text-orange-400" />{" "}
+              {user.unit_kerja}
             </span>
           )}
           <RoleBadge role={user.role} />
@@ -632,7 +942,13 @@ function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (i
         <div className="flex items-center gap-2 shrink-0">
           <AnimatePresence mode="wait">
             {confirmAction === null ? (
-              <motion.div key="buttons" className="flex gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.div
+                key="buttons"
+                className="flex gap-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
                 <button
                   type="button"
                   onClick={() => setConfirmAction("approve")}
@@ -660,8 +976,12 @@ function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (i
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
               >
-                <span className={`text-xs font-bold ${confirmAction === "approve" ? "text-emerald-700" : "text-red-700"}`}>
-                  {confirmAction === "approve" ? "Terima petugas ini?" : "Tolak & hapus akun?"}
+                <span
+                  className={`text-xs font-bold ${confirmAction === "approve" ? "text-emerald-700" : "text-red-700"}`}
+                >
+                  {confirmAction === "approve"
+                    ? "Terima petugas ini?"
+                    : "Tolak & hapus akun?"}
                 </span>
                 <button
                   type="button"
@@ -673,7 +993,11 @@ function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (i
                       : "bg-red-500 hover:bg-red-600"
                   }`}
                 >
-                  {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                  {isPending ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Check className="h-3 w-3" />
+                  )}
                   Ya
                 </button>
                 <button
@@ -693,18 +1017,32 @@ function PendingUserCard({ user, onVerify, onReject }: { user: any; onVerify: (i
   );
 }
 
-export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: any[]; currentEmail?: string }) {
+export function PenggunaClient({
+  initialUsers,
+  currentEmail,
+}: {
+  initialUsers: any[];
+  currentEmail?: string;
+}) {
   const [users, setUsers] = useState(initialUsers);
   const viewerIsSuperAdmin = isSuperAdmin(currentEmail);
 
   // Super admin (hardcoded email)
-  const superAdmin = users.find(u => isSuperAdmin(u.email));
+  const superAdmin = users.find((u) => isSuperAdmin(u.email));
   // Petugas yang BELUM diverifikasi
-  const pendingUsers = users.filter(u => isAdminRole(u.role) && !isSuperAdmin(u.email) && u.is_verified === false);
+  const pendingUsers = users.filter(
+    (u) =>
+      isAdminRole(u.role) && !isSuperAdmin(u.email) && u.is_verified === false,
+  );
   // Admin / Petugas yang SUDAH diverifikasi
-  const adminUsers = users.filter(u => isAdminRole(u.role) && !isSuperAdmin(u.email) && u.is_verified !== false);
+  const adminUsers = users.filter(
+    (u) =>
+      isAdminRole(u.role) && !isSuperAdmin(u.email) && u.is_verified !== false,
+  );
   // Pemohon
-  const pemohonUsers = users.filter(u => !isAdminRole(u.role) && !isSuperAdmin(u.email));
+  const pemohonUsers = users.filter(
+    (u) => !isAdminRole(u.role) && !isSuperAdmin(u.email),
+  );
 
   const stats = {
     total: users.length,
@@ -718,34 +1056,62 @@ export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: a
 
   // Handle approve/reject — update local state immediately
   const handleVerify = (userId: string) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_verified: true } : u));
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, is_verified: true } : u)),
+    );
     // Also optionally open permissions modal right after verify?
     // Wait, the state doesn't have the full user object in handleVerify directly.
   };
   const handleReject = (userId: string) => {
-    setUsers(prev => prev.filter(u => u.id !== userId));
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
   };
 
   const handleSavePermissions = (userId: string, perms: string[]) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, permissions: perms } : u));
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, permissions: perms } : u)),
+    );
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
   };
 
   return (
     <div className="space-y-6">
-      <UserPermissionsModal 
-        user={permissionsUser} 
-        isOpen={!!permissionsUser} 
-        onClose={() => setPermissionsUser(null)} 
+      <UserPermissionsModal
+        user={permissionsUser}
+        isOpen={!!permissionsUser}
+        onClose={() => setPermissionsUser(null)}
         onSave={handleSavePermissions}
       />
 
       {/* Stat Cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Total Pengguna", value: stats.total, icon: Users, color: "bg-slate-100 text-slate-600" },
-          { label: "Super Admin", value: stats.super_admin, icon: Crown, color: "bg-amber-100 text-amber-600" },
-          { label: "Admin / Petugas", value: stats.admin, icon: UserCheck, color: "bg-blue-100 text-blue-600" },
-          { label: "Pemohon", value: stats.user, icon: Users, color: "bg-emerald-100 text-emerald-600" },
+          {
+            label: "Total Pengguna",
+            value: stats.total,
+            icon: Users,
+            color: "bg-slate-100 text-slate-600",
+          },
+          {
+            label: "Super Admin",
+            value: stats.super_admin,
+            icon: Crown,
+            color: "bg-amber-100 text-amber-600",
+          },
+          {
+            label: "Admin / Petugas",
+            value: stats.admin,
+            icon: UserCheck,
+            color: "bg-blue-100 text-blue-600",
+          },
+          {
+            label: "Pemohon",
+            value: stats.user,
+            icon: Users,
+            color: "bg-emerald-100 text-emerald-600",
+          },
         ].map((card) => (
           <div
             key={card.label}
@@ -753,10 +1119,16 @@ export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: a
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500">{card.label}</p>
-                <p className="mt-1 text-3xl font-black text-slate-900 tabular-nums tracking-tight">{card.value}</p>
+                <p className="text-xs font-medium text-slate-500">
+                  {card.label}
+                </p>
+                <p className="mt-1 text-3xl font-black text-slate-900 tabular-nums tracking-tight">
+                  {card.value}
+                </p>
               </div>
-              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.color} transition-transform duration-300 group-hover:scale-110`}>
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.color} transition-transform duration-300 group-hover:scale-110`}
+              >
                 <card.icon className="h-5 w-5" />
               </div>
             </div>
@@ -774,21 +1146,33 @@ export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: a
             </div>
             <div>
               <h3 className="text-sm font-black text-amber-800">Super Admin</h3>
-              <p className="text-[11px] text-amber-600/70 mt-0.5">Pemilik sistem dengan hak akses tertinggi. Tidak dapat diubah.</p>
+              <p className="text-[11px] text-amber-600/70 mt-0.5">
+                Pemilik sistem dengan hak akses tertinggi. Tidak dapat diubah.
+              </p>
             </div>
           </div>
           <div className="p-5">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 text-white font-black text-base shadow-sm shadow-amber-200">
-                {(superAdmin.full_name || superAdmin.email || "S").charAt(0).toUpperCase()}
+                {(superAdmin.full_name || superAdmin.email || "S")
+                  .charAt(0)
+                  .toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-black text-slate-900">{superAdmin.full_name || "Super Admin"}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{superAdmin.email}</p>
+                <p className="font-black text-slate-900">
+                  {superAdmin.full_name || "Super Admin"}
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {superAdmin.email}
+                </p>
               </div>
               <div className="text-right hidden sm:block">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Terdaftar</p>
-                <p className="text-xs text-slate-600 mt-0.5">{formatDate(superAdmin.created_at)}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Terdaftar
+                </p>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {formatDate(superAdmin.created_at)}
+                </p>
               </div>
               <span className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border border-amber-200 shadow-sm">
                 <Crown className="h-3.5 w-3.5" />
@@ -811,8 +1195,12 @@ export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: a
                 </span>
               </div>
               <div>
-                <h3 className="text-sm font-black text-orange-800">Menunggu Verifikasi</h3>
-                <p className="text-[11px] text-orange-600/70 mt-0.5">Petugas baru yang mendaftar dan menunggu persetujuan Anda.</p>
+                <h3 className="text-sm font-black text-orange-800">
+                  Menunggu Verifikasi
+                </h3>
+                <p className="text-[11px] text-orange-600/70 mt-0.5">
+                  Petugas baru yang mendaftar dan menunggu persetujuan Anda.
+                </p>
               </div>
             </div>
           </div>
@@ -840,9 +1228,14 @@ export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: a
         showRoleChange={true}
         viewerIsSuperAdmin={viewerIsSuperAdmin}
         onUserUpdated={(userId, data) => {
-          setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
+          setUsers((prev) =>
+            prev.map((u) => (u.id === userId ? { ...u, ...data } : u)),
+          );
         }}
         onOpenPermissions={(user) => setPermissionsUser(user)}
+        onUserDeleted={(userId) => {
+          setUsers((prev) => prev.filter((u) => u.id !== userId));
+        }}
         perPage={5}
       />
 
@@ -850,50 +1243,64 @@ export function PenggunaClient({ initialUsers, currentEmail }: { initialUsers: a
       <PemohonTable
         users={pemohonUsers}
         viewerIsSuperAdmin={viewerIsSuperAdmin}
+        onUserDeleted={handleDeleteUser}
       />
     </div>
   );
 }
 
 /* ─── Tabel khusus Pemohon ─────────────────────────────────── */
-function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSuperAdmin: boolean }) {
+function PemohonTable({
+  users,
+  viewerIsSuperAdmin,
+  onUserDeleted,
+}: {
+  users: any[];
+  viewerIsSuperAdmin: boolean;
+  onUserDeleted: (id: string) => void;
+}) {
   const PER_PAGE = 10;
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
-  const [editingUser, setEditingUser] = useState<any | null>(null);
-  const [newRole, setNewRole] = useState("");
+  const [deletingUser, setDeletingUser] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = searchQuery
-    ? users.filter(u =>
-        (u.full_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (u.phone || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (u.address || "").toLowerCase().includes(searchQuery.toLowerCase())
+    ? users.filter(
+        (u) =>
+          (u.full_name || "")
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          (u.phone || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (u.address || "").toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : users;
 
   const totalPages = Math.ceil(filteredUsers.length / PER_PAGE);
-  const paginatedUsers = filteredUsers.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const paginatedUsers = filteredUsers.slice(
+    (page - 1) * PER_PAGE,
+    page * PER_PAGE,
+  );
 
   const handleSearch = (q: string) => {
     setSearchQuery(q);
     setPage(1);
   };
 
-  const handleSaveRole = () => {
-    if (!editingUser || !newRole) return;
-    const data = new FormData();
-    data.append("id", editingUser.id);
-    data.append("role", newRole);
+  const confirmDelete = () => {
+    if (!deletingUser) return;
     startTransition(async () => {
       try {
-        await updateUserRoleAction(data);
-        toast.success("Role Berhasil Diubah", {
-          description: `${editingUser.full_name || editingUser.phone} sekarang menjadi ${isAdminRole(newRole) ? "Petugas" : "Pemohon"}.`,
-        });
-        setEditingUser(null);
-      } catch {
-        toast.error("Gagal mengubah role pengguna.");
+        const result = await deleteUserPermanentlyAction(deletingUser.id);
+        if (result.success) {
+          toast.success("Akun Berhasil Dihapus", {
+            description: `Seluruh data ${deletingUser.full_name || deletingUser.phone} dan file terkait telah dibersihkan.`,
+          });
+          onUserDeleted(deletingUser.id);
+          setDeletingUser(null);
+        }
+      } catch (err: any) {
+        toast.error("Gagal menghapus pengguna", { description: err.message });
       }
     });
   };
@@ -907,8 +1314,12 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-sm font-black text-slate-800">Daftar Pemohon</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Pengguna yang mengajukan layanan melalui PTSP.</p>
+            <h3 className="text-sm font-black text-slate-800">
+              Daftar Pemohon
+            </h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Pengguna yang mengajukan layanan melalui PTSP.
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -935,16 +1346,32 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200/60 bg-slate-50/50">
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-12">#</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-44">Nama</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-36">No HP / WA</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400">Alamat</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-28">Role</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-12">
+                #
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-44">
+                Nama
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-36">
+                No HP / WA
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Alamat
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-28">
+                Role
+              </th>
               {viewerIsSuperAdmin && (
-                <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-40">Password</th>
+                <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-40">
+                  Password
+                </th>
               )}
-              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-36">Terdaftar</th>
-              <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wider text-slate-400 w-28">Aksi</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black uppercase tracking-wider text-slate-400 w-36">
+                Terdaftar
+              </th>
+              <th className="px-5 py-3 text-right text-[10px] font-black uppercase tracking-wider text-slate-400 w-28">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -967,7 +1394,11 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
                         {(user.full_name || "P").charAt(0).toUpperCase()}
                       </div>
                       <span className="font-bold text-slate-900 truncate">
-                        {user.full_name || <span className="italic text-slate-400">Tanpa nama</span>}
+                        {user.full_name || (
+                          <span className="italic text-slate-400">
+                            Tanpa nama
+                          </span>
+                        )}
                       </span>
                     </div>
                   </td>
@@ -977,8 +1408,15 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <p className="text-sm text-slate-600 line-clamp-2 leading-snug" title={user.address || ""}>
-                      {user.address || <span className="text-slate-400 italic">Belum diisi</span>}
+                    <p
+                      className="text-sm text-slate-600 line-clamp-2 leading-snug"
+                      title={user.address || ""}
+                    >
+                      {user.address || (
+                        <span className="text-slate-400 italic">
+                          Belum diisi
+                        </span>
+                      )}
                     </p>
                   </td>
                   <td className="px-5 py-3.5">
@@ -986,7 +1424,10 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
                   </td>
                   {viewerIsSuperAdmin && (
                     <td className="px-5 py-3.5">
-                      <PasswordCell password={user.plain_password} canView={viewerIsSuperAdmin} />
+                      <PasswordCell
+                        password={user.plain_password}
+                        canView={viewerIsSuperAdmin}
+                      />
                     </td>
                   )}
                   <td className="px-5 py-3.5 text-xs text-slate-500 whitespace-nowrap">
@@ -995,14 +1436,11 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
                   <td className="px-5 py-3.5">
                     <div className="flex justify-end">
                       <button
-                        onClick={() => {
-                          setEditingUser(user);
-                          setNewRole(user.role);
-                        }}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-200/80 hover:bg-blue-50 hover:text-[#1f4bb7] hover:border-blue-200 transition-all duration-200 shadow-sm"
+                        onClick={() => setDeletingUser(user)}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold text-red-600 bg-red-50 border border-red-100 hover:bg-red-100 hover:border-red-200 transition-all duration-200 shadow-sm"
                       >
-                        <Pencil className="h-3 w-3" />
-                        Ubah Role
+                        <Trash2 className="h-3 w-3" />
+                        Hapus Akun
                       </button>
                     </div>
                   </td>
@@ -1011,15 +1449,22 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
             </AnimatePresence>
             {!paginatedUsers.length && (
               <tr>
-                <td colSpan={viewerIsSuperAdmin ? 8 : 7} className="px-5 py-16 text-center">
+                <td
+                  colSpan={viewerIsSuperAdmin ? 8 : 7}
+                  className="px-5 py-16 text-center"
+                >
                   <div className="flex flex-col items-center gap-3">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50">
                       <Inbox className="h-7 w-7 text-slate-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-500">Belum ada pemohon terdaftar.</p>
+                      <p className="text-sm font-bold text-slate-500">
+                        Belum ada pemohon terdaftar.
+                      </p>
                       {searchQuery && (
-                        <p className="mt-1 text-xs text-slate-400">Coba ubah kata kunci pencarian.</p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Coba ubah kata kunci pencarian.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -1034,18 +1479,18 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
       {totalPages > 1 && (
         <div className="border-t border-slate-100 bg-slate-50/50 px-5 py-3 flex items-center justify-between">
           <p className="text-[11px] text-slate-500">
-            Halaman <span className="font-bold text-slate-700">{page}</span> dari{" "}
-            <span className="font-bold text-slate-700">{totalPages}</span>
+            Halaman <span className="font-bold text-slate-700">{page}</span>{" "}
+            dari <span className="font-bold text-slate-700">{totalPages}</span>
           </p>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
                 key={p}
                 onClick={() => setPage(p)}
@@ -1059,7 +1504,7 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
               </button>
             ))}
             <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
@@ -1069,99 +1514,58 @@ function PemohonTable({ users, viewerIsSuperAdmin }: { users: any[]; viewerIsSup
         </div>
       )}
 
-      {/* Edit Role Modal */}
+      {/* Delete User Confirmation Modal */}
       <AnimatePresence>
-        {editingUser && (
+        {deletingUser && (
           <>
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50"
-              onClick={() => setEditingUser(null)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50"
+              onClick={() => !isPending && setDeletingUser(null)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-3xl shadow-2xl z-50 overflow-hidden"
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                <h3 className="text-lg font-black text-slate-800">Ubah Role Pengguna</h3>
-                <button
-                  onClick={() => setEditingUser(null)}
-                  className="p-2 rounded-xl hover:bg-slate-200/50 text-slate-400 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="p-6 space-y-5">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 font-bold text-sm">
-                    {(editingUser.full_name || "P").charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-slate-900 truncate">{editingUser.full_name || "Tanpa Nama"}</p>
-                    <p className="text-xs text-slate-500 truncate">{editingUser.phone || editingUser.email}</p>
-                  </div>
+              <div className="p-8 text-center">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-600 mb-6 ring-8 ring-red-50/50">
+                  <Trash2 className="h-10 w-10" />
                 </div>
 
-                <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Pilih Role Baru</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setNewRole("admin_ptsp")}
-                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                        newRole === "admin_ptsp"
-                          ? "border-[#1f4bb7] bg-blue-50/50 shadow-sm shadow-blue-100"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
-                      }`}
-                    >
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                        newRole === "admin_ptsp" ? "bg-blue-100 text-[#1f4bb7]" : "bg-slate-100 text-slate-500"
-                      }`}>
-                        <Shield className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className={`text-sm font-bold ${newRole === "admin_ptsp" ? "text-[#1f4bb7]" : "text-slate-700"}`}>Admin PTSP</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Kelola pengajuan</p>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setNewRole("user")}
-                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                        newRole === "user"
-                          ? "border-emerald-500 bg-emerald-50/50 shadow-sm shadow-emerald-100"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
-                      }`}
-                    >
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                        newRole === "user" ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-500"
-                      }`}>
-                        <Users className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className={`text-sm font-bold ${newRole === "user" ? "text-emerald-700" : "text-slate-700"}`}>Pemohon</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Ajukan layanan</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2">
+                  Hapus Akun Pemohon?
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                  Tindakan ini{" "}
+                  <span className="font-bold text-red-600">permanen</span>.
+                  Seluruh data profil, riwayat pengajuan, dan file dokumen di{" "}
+                  <span className="font-bold">Google Drive</span> akan dihapus
+                  selamanya.
+                </p>
 
-                <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+                <div className="flex flex-col gap-3">
                   <button
-                    type="button"
-                    onClick={() => setEditingUser(null)}
-                    className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+                    onClick={confirmDelete}
+                    disabled={isPending}
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold transition-all active:scale-[0.98] disabled:opacity-50"
                   >
-                    Batal
+                    {isPending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Check className="h-5 w-5" />
+                    )}
+                    Ya, Hapus Permanen
                   </button>
                   <button
-                    onClick={handleSaveRole}
-                    disabled={isPending || newRole === editingUser.role}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#1f4bb7] to-[#2557c9] hover:shadow-md hover:shadow-blue-500/25 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => setDeletingUser(null)}
+                    disabled={isPending}
+                    className="w-full py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition-all active:scale-[0.98]"
                   >
-                    {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                    Simpan Perubahan
+                    Batalkan
                   </button>
                 </div>
               </div>

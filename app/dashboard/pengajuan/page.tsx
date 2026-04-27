@@ -19,7 +19,10 @@ export default async function UserRequestsPage() {
       services (name),
       service_items (name),
       service_request_answers (*),
-      service_request_documents (*)
+      service_request_documents (
+        *,
+        service_requirements (document_name)
+      )
     `,
     )
     .eq("user_id", profile.id)

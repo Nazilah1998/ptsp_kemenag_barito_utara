@@ -18,9 +18,10 @@ import { getDrivePreviewUrl } from "@/lib/google-drive";
 export default async function TrackPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; kode?: string }>;
 }) {
-  const { q = "" } = await searchParams;
+  const params = await searchParams;
+  const q = params.q || params.kode || "";
   const admin = createAdminClient();
 
   let result: any = null;

@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -57,97 +59,109 @@ export async function POST(
         .eq("request_id", id);
     }
 
-    // 2. Prepare Google Drive Folder
-    const mainRequirementsFolderId =
-      await getOrCreateFolder("File Persyaratan");
+    // 2. Prepare user folder in Google Drive (for new uploads)
+    const mainFolderId = await getOrCreateFolder("File Persyaratan");
     const userFolderName = `${profile.full_name || "User"} (${profile.email})`;
-    const userFolderId = await getOrCreateFolder(
-      userFolderName,
-      mainRequirementsFolderId,
-    );
+    const userFolderId = await getOrCreateFolder(userFolderName, mainFolderId);
 
-    // 3. Update documents
+    // 3. Fetch all existing documents for this request at once
+    // This avoids "uuid = bigint" errors by doing the matching in memory
+    const { data: existingDocs, error: fetchError } = await admin
+      .from("service_request_documents")
+      .select("*")
+      .eq("request_id", id);
+
+    if (fetchError) {
+      console.error("[update] Error fetching existing docs:", fetchError);
+    }
+
+    // 4. Update documents
     const entries = Array.from(formData.entries());
     const fileEntries = entries.filter(([key]) => key.startsWith("doc_"));
 
     for (const [key, value] of fileEntries) {
-      if (value instanceof File && value.size > 0) {
-        const docId = key.replace("doc_", "");
-        console.log(`Processing file replacement for docId: ${docId}`);
+      if (!(value instanceof File) || value.size === 0) continue;
 
-        // 3a. Get old file info BEFORE updating
-        const { data: oldDoc, error: fetchError } = await admin
-          .from("service_request_documents")
-          .select("file_path, file_name")
-          .eq("id", docId)
-          .single();
+      const docId = key.replace("doc_", "");
+      console.log(`[update] Processing file for docId identifier: ${docId}`);
 
-        if (fetchError || !oldDoc) {
-          console.error(
-            `Could not find old document info for ${docId}:`,
-            fetchError,
-          );
-          continue;
-        }
+      // Find the document in memory
+      // We check for both ID match and Requirement ID match
+      const currentDoc = existingDocs?.find(
+        (doc) =>
+          String(doc.id) === docId || String(doc.requirement_id) === docId,
+      );
 
-        const oldFilePath = oldDoc.file_path;
-        const newFileName = sanitizeFilename(value.name);
+      const newFileName = sanitizeFilename(value.name);
+      const oldFilePath = currentDoc?.file_path;
 
-        console.log(`Replacing "${oldDoc.file_name}" with "${newFileName}"`);
+      try {
+        // 4a. Upload NEW file
+        const newDriveFile = await uploadToDrive(value, userFolderId);
+        const newStoragePath = `gdrive:${newDriveFile.id}`;
 
-        // 3b. Upload NEW file to Google Drive
-        try {
-          const driveFile = await uploadToDrive(value, userFolderId);
-          const newStoragePath = `gdrive:${driveFile.id}`;
-
-          // 3c. Update DB with NEW file info
-          const { error: updateError } = await admin
+        if (currentDoc) {
+          // UPDATE existing record
+          const { error: dbError } = await admin
             .from("service_request_documents")
             .update({
+              file_name: newFileName,
               file_path: newStoragePath,
-              file_name: newFileName, // Update with the new actual file name
               file_size: value.size,
-              file_type: value.type,
-              updated_at: new Date().toISOString(),
+              file_type: value.type || "application/octet-stream",
             })
-            .eq("id", docId);
+            .eq("id", currentDoc.id);
 
-          if (updateError) throw updateError;
+          if (dbError) throw dbError;
 
-          // 3d. DELETE old file only after new one is successfully saved
+          // Delete old file from Drive
           if (oldFilePath) {
-            console.log(`Deleting old file from storage: ${oldFilePath}`);
-            if (oldFilePath.startsWith("gdrive:")) {
-              const oldDriveId = oldFilePath.replace("gdrive:", "");
-              await deleteFromDrive(oldDriveId);
-            } else {
-              await admin.storage
-                .from("request-documents")
-                .remove([oldFilePath]);
+            try {
+              if (oldFilePath.startsWith("gdrive:")) {
+                await deleteFromDrive(oldFilePath.replace("gdrive:", ""));
+              } else {
+                await admin.storage
+                  .from("request-documents")
+                  .remove([oldFilePath]);
+              }
+            } catch (delErr) {
+              console.warn(`[update] Could not delete old file:`, delErr);
             }
           }
+        } else {
+          // INSERT new record (if not found in memory)
+          const numericDocId = parseInt(docId);
+          const { error: insError } = await admin
+            .from("service_request_documents")
+            .insert({
+              request_id: id,
+              requirement_id: isNaN(numericDocId) ? null : numericDocId,
+              file_name: newFileName,
+              file_path: newStoragePath,
+              file_size: value.size,
+              file_type: value.type || "application/octet-stream",
+            });
 
-          console.log(`Successfully replaced document ${docId}`);
-        } catch (uploadOrDeleteError) {
-          console.error(
-            `Error during file replacement for ${docId}:`,
-            uploadOrDeleteError,
-          );
-          // Continue to next file if one fails
+          if (insError) throw insError;
         }
+
+        console.log(`[update] Successfully handled document ${docId}`);
+      } catch (err) {
+        console.error(`[update] Failed to handle doc ${docId}:`, err);
       }
     }
 
-    // Add activity log
+    // 5. Activity log
     await admin.from("activity_logs").insert({
       request_id: id,
-      user_id: profile.id,
-      action: "Pemohon memperbarui data dan dokumen",
+      actor_id: profile.id,
+      action: "request_updated",
+      notes: "Pemohon memperbarui data dan dokumen pengajuan.",
     });
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("Update error:", err);
+    console.error("[update] Unhandled error:", err);
     return NextResponse.json(
       { error: err.message || "Internal Error" },
       { status: 500 },

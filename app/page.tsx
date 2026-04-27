@@ -2,32 +2,25 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
-  Sparkles,
   ShieldCheck,
-  Building2,
   BookOpenCheck,
   Search,
   FilePlus2,
   LayoutGrid,
-  ClipboardList,
   CheckCircle2,
   Clock,
   FileCheck2,
   Zap,
   Globe,
   Users,
-  Star,
   ChevronRight,
   Award,
   Headphones,
   TrendingUp,
 } from "lucide-react";
 import { SiteHomeFaq } from "@/components/site-home-faq";
-import { getPublicServices } from "@/lib/queries";
 
 export default async function HomePage() {
-  const services = await getPublicServices();
-
   return (
     <div className="w-full overflow-x-hidden">
       {/* ═══════════════════════════════════════════════════════════
@@ -365,6 +358,22 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Divider: Quick Access to Track */}
+      <div className="relative h-16 w-full overflow-hidden bg-[#f8fafc]">
+        <svg
+          viewBox="0 0 1440 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="absolute bottom-0 w-full"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 32C240 64 480 0 720 32C960 64 1200 0 1440 32V64H0V32Z"
+            fill="white"
+          />
+        </svg>
+      </div>
+
       {/* ═══════════════════════════════════════════════════════════
           TRACK SECTION
       ═══════════════════════════════════════════════════════════ */}
@@ -408,7 +417,7 @@ export default async function HomePage() {
                     <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
                     <input
                       type="text"
-                      name="kode"
+                      name="q"
                       placeholder="Contoh: PTSP-BRU-2025-000123"
                       className="w-full rounded-2xl border border-white/20 bg-white/10 py-3.5 pl-11 pr-4 text-sm text-white placeholder-white/40 backdrop-blur-sm transition-all duration-200 focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                     />
@@ -484,98 +493,26 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════
-          SERVICES SECTION
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="bg-[#f8fafc] py-14 md:py-20">
-        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
-          {/* Header */}
-          <div className="mb-12 flex items-end justify-between gap-6">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#1f4bb7]/10 px-4 py-1.5">
-                <LayoutGrid className="h-3.5 w-3.5 text-[#1f4bb7]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1f4bb7]">
-                  Layanan Kami
-                </span>
-              </div>
-              <h2 className="text-3xl font-black tracking-tight text-slate-900 md:text-4xl">
-                Jenis Layanan Tersedia
-              </h2>
-              <p className="mt-3 max-w-lg text-sm text-slate-500 md:text-base leading-relaxed">
-                Ajukan layanan administrasi keagamaan secara online — mudah,
-                terdokumentasi, dan terpantau.
-              </p>
-            </div>
-            <Link
-              href="/layanan"
-              className="hidden shrink-0 items-center gap-2 rounded-2xl border border-[#1f4bb7]/20 bg-white px-5 py-2.5 text-sm font-bold text-[#1f4bb7] shadow-sm transition-all duration-200 hover:bg-[#1f4bb7] hover:text-white hover:shadow-md sm:inline-flex"
-            >
-              Semua Layanan <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {/* Cards */}
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {/* Dynamic services */}
-            {services.map((service: any, idx: number) => (
-              <div
-                key={service.id}
-                className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_4px_20px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-2 hover:border-[#1f4bb7]/25 hover:shadow-[0_20px_50px_rgba(31,75,183,0.14)]"
-              >
-                <div className="h-1.5 w-full bg-gradient-to-r from-slate-200 to-slate-300 transition-all duration-300 group-hover:from-[#1f4bb7] group-hover:to-[#0f8a54]" />
-                <div className="pointer-events-none absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-gradient-to-br from-slate-50 to-transparent transition-all duration-300 group-hover:from-[#1f4bb7]/6" />
-
-                <div className="p-6">
-                  <div className="mb-4 flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#eef3ff] px-3 py-1 text-[11px] font-bold text-[#1f4bb7]">
-                      <ShieldCheck className="h-3 w-3" />
-                      Aktif
-                    </span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-100 text-[11px] font-black text-slate-500">
-                      {String(idx + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-
-                  <h3 className="line-clamp-2 text-lg font-black leading-snug text-slate-900">
-                    {service.name}
-                  </h3>
-                  <p className="mt-2.5 line-clamp-3 text-sm leading-relaxed text-slate-500">
-                    {service.description || "Deskripsi layanan belum tersedia."}
-                  </p>
-
-                  <div className="mt-3.5 flex items-center gap-2 text-xs text-slate-400">
-                    <Building2 className="h-3.5 w-3.5 text-[#1f4bb7]" />
-                    <span>Kemenag Barito Utara</span>
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <span className="inline-flex items-center gap-1.5 rounded-xl bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
-                      <ClipboardList className="h-3.5 w-3.5 text-[#1f4bb7]" />
-                      {service.service_items?.length ?? 0} item layanan
-                    </span>
-                    <Link
-                      href={`/layanan/${service.slug}`}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-[#1f4bb7]/20 bg-[#1f4bb7]/5 px-4 py-2 text-xs font-bold text-[#1f4bb7] transition-all duration-200 hover:bg-[#1f4bb7] hover:text-white hover:-translate-y-0.5"
-                    >
-                      Lihat Detail <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile see all button */}
-          <div className="mt-8 text-center sm:hidden">
-            <Link
-              href="/layanan"
-              className="inline-flex items-center gap-2 rounded-2xl border border-[#1f4bb7]/25 bg-white px-6 py-3 text-sm font-bold text-[#1f4bb7] shadow-sm transition-all duration-200 hover:bg-[#1f4bb7] hover:text-white"
-            >
-              Lihat Semua Layanan <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Divider: Track to How It Works */}
+      <div className="relative -mt-1 h-20 w-full overflow-hidden bg-white">
+        <svg
+          viewBox="0 0 1440 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0C360 80 720 0 1080 80C1440 160 1440 0 1440 0H0Z"
+            fill="#f8fafc"
+            className="opacity-50"
+          />
+          <path
+            d="M0 0C360 40 720 0 1080 40C1440 80 1440 0 1440 0H0Z"
+            fill="#f1f5f9"
+          />
+        </svg>
+      </div>
 
       {/* ═══════════════════════════════════════════════════════════
           HOW IT WORKS
@@ -599,9 +536,6 @@ export default async function HomePage() {
           </div>
 
           <div className="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Connector line desktop */}
-            <div className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-10 hidden h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent lg:block" />
-
             {[
               {
                 step: "01",
@@ -684,57 +618,6 @@ export default async function HomePage() {
               Mulai Sekarang — Gratis
               <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          STATS SECTION
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="bg-gradient-to-br from-[#0a1e5e] to-[#1f4bb7] py-16 md:py-24">
-        <div className="mx-auto w-full px-6 sm:px-10 lg:px-20 xl:px-24">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
-            {[
-              {
-                value: "10+",
-                label: "Jenis Layanan",
-                icon: LayoutGrid,
-                color: "text-[#5eeaa5]",
-              },
-              {
-                value: "500+",
-                label: "Permohonan Diproses",
-                icon: TrendingUp,
-                color: "text-[#f0c040]",
-              },
-              {
-                value: "200+",
-                label: "Pengguna Terdaftar",
-                icon: Users,
-                color: "text-blue-300",
-              },
-              {
-                value: "100%",
-                label: "Layanan Online",
-                icon: Globe,
-                color: "text-purple-300",
-              },
-            ].map(({ value, label, icon: Icon, color }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center text-center"
-              >
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                  <Icon className={`h-5 w-5 ${color}`} />
-                </div>
-                <span className={`text-4xl font-black ${color} leading-none`}>
-                  {value}
-                </span>
-                <span className="mt-2 text-xs font-semibold text-white/50 uppercase tracking-wider">
-                  {label}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       </section>

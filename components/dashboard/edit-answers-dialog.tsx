@@ -43,7 +43,7 @@ export function EditAnswersDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Edit className="h-5 w-5 text-blue-600" />
-            <span>Edit Data & Dokumen Pengajuan</span>
+            <span>Edit Data &amp; Dokumen Pengajuan</span>
           </DialogTitle>
           <p className="text-xs text-slate-500 mt-1">
             Perbarui informasi atau dokumen yang keliru di bawah ini.

@@ -100,6 +100,15 @@ export async function POST(request: Request) {
     .single();
 
   if (createError || !createdRequest) {
+    if (createError?.code === "23505") {
+      return NextResponse.json(
+        {
+          error:
+            "Terjadi gangguan sinkronisasi nomor pengajuan. Silakan coba klik Kirim kembali dalam beberapa saat.",
+        },
+        { status: 409 },
+      );
+    }
     return NextResponse.json(
       { error: createError?.message || "Gagal membuat pengajuan." },
       { status: 500 },

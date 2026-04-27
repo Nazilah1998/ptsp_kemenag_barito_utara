@@ -1,12 +1,9 @@
-import { Card } from '@/components/ui/card';
-import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
+import { ForgotPasswordClient } from "@/components/auth/forgot-password-client";
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="mx-auto max-w-md">
-      <Card title="Reset Password" description="Masukkan email Anda untuk menerima link reset">
-        <ForgotPasswordForm />
-      </Card>
+    <div className="flex min-h-[calc(100dvh-80px)] items-center justify-center px-4 py-12">
+      <ForgotPasswordClient />
     </div>
   );
 }
